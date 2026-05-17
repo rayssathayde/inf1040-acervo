@@ -57,5 +57,3 @@ dkms.conf
 # Build output
 build/
 
-# Dados de runtime
-data/*.txt
