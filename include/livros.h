@@ -59,19 +59,24 @@ int cadastrar_livro(int isbn, char *titulo, char *autor, int ano, int quantidade
  * 
  * @param id_livro Identificador único do livro.
  *
- * @return Ponteiro para o livro ou NULL se não encontrado.
+ * @return int
+ * @retval 1 Livro encontrado.
+ * @retval 0 Livro não encontrado.
  */
-const Livro* buscar_livro(int id_livro);
+int buscar_livro(int id_livro);
 
 
 /**
  * @brief Retorna o título de um livro.
  *
- * @param l Ponteiro para o livro.
+ * @param id_livro Identificador único do livro.
+ * @param titulo Vetor que receberá título do livro.
  *
- * @return Título do livro.
+ * @return int
+ * @retval 1 Título obtido com sucesso.
+ * @retval 0 Livro não encontrado.
  */
-const char* obter_titulo_livro(const Livro *l);
+int obter_titulo_livro(int id_livro, char* titulo);
 
 
 /**
@@ -132,8 +137,12 @@ int aumentar_disponivel(int id_livro);
 
 /**
  * @brief Lista todos os livros cadastrados.
+ * 
+ * @return int
+ * @retval 1 Listagem realizada com sucesso.
+ * @retval 0 Nenhum livro cadastrado.
  */
-void listar_livros(); 
+int listar_livros(); 
 
 
 /**

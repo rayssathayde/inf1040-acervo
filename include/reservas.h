@@ -74,16 +74,28 @@ int cancelar_reserva(int id_livro, int matricula);
 
 /**
  * @brief Lista todas as reservas do livro.
+ * 
  * @param id_livro Identificador único do livro.
+ * 
+ * @return int
+ * @retval 1 Listagem realizada com sucesso.
+ * @retval 0 Nenhuma reserva encontrada.
+ * @retval -1 Livro não encontrado.
  */
-void listar_reservas_livro(int id_livro);
+int listar_reservas_livro(int id_livro);
 
 
 /**
  * @brief Lista todas as reservas de um aluno.
+ * 
  * @param matricula Identificador único do aluno.
+ * 
+ * @return int
+ * @retval 1 Listagem realizada com sucesso.
+ * @retval 0 Nenhuma reserva encontrada.
+ * @retval -1 Aluno não encontrado.
  */
-void listar_reservas_aluno(int matricula);
+int listar_reservas_aluno(int matricula);
 
 
 /**

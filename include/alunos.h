@@ -56,25 +56,34 @@ int cadastrar_aluno(int matricula, char *nome, char *curso);
  * 
  * @param matricula Identificador único do aluno.
  *
- * @return Ponteiro para o aluno ou NULL se não encontrado.
+ * @return int 
+ * @retval 1 Aluno encontrado.
+ * @retval 0 Aluno não encontrado. 
  */
-const Aluno* buscar_aluno(int matricula);
+int buscar_aluno(int matricula);
 
 
 /**
- * @brief Retorna o nome de um aluno.
+ * @brief Obtem o nome de um aluno.
  *
- * @param a Ponteiro para o aluno.
+ * @param matricula Identificador único do aluno.
+ * @param nome Vetor que receberá o nome do aluno. 
  *
- * @return Nome do aluno.
+ * @return int
+ * @retval 1 Nome obtido com sucesso.
+ * @retval 0 Aluno não encontrado.
  */
-const char* obter_nome_aluno(const Aluno *a);
+int obter_nome_aluno(int matricula, char* nome);
 
 
 /**
  * @brief Lista todos os alunos cadastrados.
+ * 
+ * @return int
+ * @retval 1 Listagem realizada com sucesso.
+ * @retval 0 Nenhum aluno cadastrado.
  */
-void listar_alunos();
+int listar_alunos();
 
 
 /**

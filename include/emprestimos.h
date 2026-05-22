@@ -73,16 +73,28 @@ int devolver_livro(int id_livro, int matricula);
 
 /**
  * @brief Lista todos os empréstimos de um livro.
+ * 
  * @param id_livro Identificador único do livro.
+ * 
+ * @return int
+ * @retval 1 Listagem realizada com sucesso.
+ * @retval 0 Nenhum empréstimo encontrado.
+ * @retval -1 Livro não encontrado.
  */
-void listar_emprestimos_livro(int id_livro); 
+int listar_emprestimos_livro(int id_livro); 
 
 
 /**
  * @brief Lista todos os empréstimos de um aluno.
+ * 
  * @param matricula Identificador único do aluno.
+ * 
+ * @return int
+ * @retval 1 Listagem realizada com sucesso.
+ * @retval 0 Nenhum empréstimo encontrado.
+ * @retval -1 Aluno não encontrado.
  */
-void listar_emprestimos_aluno(int matricula); 
+int listar_emprestimos_aluno(int matricula); 
 
 
 /**
