@@ -44,7 +44,7 @@ int salvar_reservas(const char *arquivo);
 /**
  * @brief Cria a reserva de um livro para um aluno.
  * 
- * @param id_livro Identificador único do livro.
+ * @param isbn Identificador único do livro.
  * @param matricula Identificador único do aluno.
  * 
  * @return int
@@ -54,13 +54,13 @@ int salvar_reservas(const char *arquivo);
  * @retval -2 Aluno não encontrado.
  * @retval -3 Aluno já reservou esse livro.
  */
-int criar_reserva(int id_livro, int matricula);
+int criar_reserva(long isbn, int matricula);
 
 
 /**
  * @brief Cancela uma reserva de um livro por um aluno.
  * 
- * @param id_livro Identificador único do livro.
+ * @param isbn Identificador único do livro.
  * @param matricula Identificador único do aluno.
  *
  * @return int
@@ -69,20 +69,20 @@ int criar_reserva(int id_livro, int matricula);
  * @retval -1 Livro não encontrado.
  * @retval -2 Aluno não encontrado.
  */
-int cancelar_reserva(int id_livro, int matricula);
+int cancelar_reserva(long isbn, int matricula);
 
 
 /**
  * @brief Lista todas as reservas do livro.
  * 
- * @param id_livro Identificador único do livro.
+ * @param isbn Identificador único do livro.
  * 
  * @return int
  * @retval 1 Listagem realizada com sucesso.
  * @retval 0 Nenhuma reserva encontrada.
  * @retval -1 Livro não encontrado.
  */
-int listar_reservas_livro(int id_livro);
+int listar_reservas_livro(long isbn);
 
 
 /**
@@ -101,7 +101,7 @@ int listar_reservas_aluno(int matricula);
 /**
  * @brief Obtém a próxima reserva (primeiro da fila) de um livro.
  * 
- * @param id_livro Identificador único do livro.
+ * @param isbn Identificador único do livro.
  * @param matricula Ponteiro para variável que receberá a matrícula do próximo da fila.
  *
  * @return int
@@ -109,7 +109,7 @@ int listar_reservas_aluno(int matricula);
  * @retval 0 Não há reservas.
  * @retval -1 Livro não encontrado.
  */
-int proxima_reserva(int id_livro, int *matricula);
+int proxima_reserva(long isbn, int *matricula);
 
 
 

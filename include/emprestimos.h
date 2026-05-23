@@ -10,6 +10,10 @@
  * @details
  * Este módulo depende dos módulos de alunos e livros para validação
  * de dados e controle de disponibilidade.
+ * 
+ * @pre carregar_alunos() deve ser chamado antes de qualquer função deste módulo.
+ * @pre carregar_livros() deve ser chamado antes de qualquer função deste módulo.
+ * @pre carregar_emprestimos() deve ser chamado antes de qualquer outra função deste módulo.
  */
 
 typedef struct emprestimo Emprestimo;
@@ -43,8 +47,12 @@ int salvar_emprestimos(const char *arquivo);
 /**
  * @brief Realiza empréstimo de um livro para um aluno.
  * 
- * @param id_livro Identificador único do livro.
+ * @param isbn Identificador único do livro.
  * @param matricula Identificador único do aluno.
+ * 
+ * @post Se retornou 1, quantidade_disponivel do livro foi reduzida em 1.
+ * 
+ * @note Um aluno não pode ter mais de um exemplar do mesmo livro.
  * 
  * @return int
  * @retval 1 Empréstimo realizado com sucesso.
@@ -53,14 +61,16 @@ int salvar_emprestimos(const char *arquivo);
  * @retval -2 Aluno não encontrado.
  * @retval -3 Aluno já está com esse livro.
  */
-int emprestar_livro(int id_livro, int matricula);
+int emprestar_livro(long isbn, int matricula);
 
 
 /**
  * @brief Realiza devolução de um livro por um aluno.
  * 
- * @param id_livro Identificador único do livro.
+ * @param isbn Identificador único do livro.
  * @param matricula Identificador único do aluno.
+ * 
+ * @post Se retornou 1, quantidade_disponivel do livro foi aumentada em 1.
  *
  * @return int
  * @retval 1 Devolução realizada com sucesso.
@@ -68,26 +78,30 @@ int emprestar_livro(int id_livro, int matricula);
  * @retval -1 Livro não encontrado.
  * @retval -2 Aluno não encontrado.
  */
-int devolver_livro(int id_livro, int matricula);
+int devolver_livro(long isbn, int matricula);
 
 
 /**
  * @brief Lista todos os empréstimos de um livro.
  * 
- * @param id_livro Identificador único do livro.
+ * @param isbn Identificador único do livro.
+ * 
+ * @note Imprime os resultados via printf.
  * 
  * @return int
  * @retval 1 Listagem realizada com sucesso.
  * @retval 0 Nenhum empréstimo encontrado.
  * @retval -1 Livro não encontrado.
  */
-int listar_emprestimos_livro(int id_livro); 
+int listar_emprestimos_livro(long isbn); 
 
 
 /**
  * @brief Lista todos os empréstimos de um aluno.
  * 
  * @param matricula Identificador único do aluno.
+ * 
+ * @note Imprime os resultados via printf.
  * 
  * @return int
  * @retval 1 Listagem realizada com sucesso.
@@ -113,14 +127,14 @@ int aluno_possui_emprestimo(int matricula);
 /**
  * @brief Verifica se o livro está emprestado.
  * 
- * @param id_livro Identificador único do livro.
+ * @param isbn Identificador único do livro.
  *
  * @return int
  * @retval 1 Livro está emprestado.
  * @retval 0 Livro não está emprestado.
  * @retval -1 Livro não encontrado.
  */
-int livro_esta_emprestado(int id_livro); 
+int livro_esta_emprestado(long isbn); 
 
 
 #endif
