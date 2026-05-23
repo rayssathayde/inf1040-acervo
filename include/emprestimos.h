@@ -10,6 +10,10 @@
  * @details
  * Este módulo depende dos módulos de alunos e livros para validação
  * de dados e controle de disponibilidade.
+ * 
+ * @pre carregar_alunos() deve ser chamado antes de qualquer função deste módulo.
+ * @pre carregar_livros() deve ser chamado antes de qualquer função deste módulo.
+ * @pre carregar_emprestimos() deve ser chamado antes de qualquer outra função deste módulo.
  */
 
 typedef struct emprestimo Emprestimo;
@@ -46,6 +50,10 @@ int salvar_emprestimos(const char *arquivo);
  * @param id_livro Identificador único do livro.
  * @param matricula Identificador único do aluno.
  * 
+ * @post Se retornou 1, quantidade_disponivel do livro foi reduzida em 1.
+ * 
+ * @note Um aluno não pode ter mais de um exemplar do mesmo livro.
+ * 
  * @return int
  * @retval 1 Empréstimo realizado com sucesso.
  * @retval 0 Livro indisponível para empréstimo.
@@ -61,6 +69,8 @@ int emprestar_livro(int id_livro, int matricula);
  * 
  * @param id_livro Identificador único do livro.
  * @param matricula Identificador único do aluno.
+ * 
+ * @post Se retornou 1, quantidade_disponivel do livro foi aumentada em 1.
  *
  * @return int
  * @retval 1 Devolução realizada com sucesso.
@@ -76,6 +86,8 @@ int devolver_livro(int id_livro, int matricula);
  * 
  * @param id_livro Identificador único do livro.
  * 
+ * @note Imprime os resultados via printf.
+ * 
  * @return int
  * @retval 1 Listagem realizada com sucesso.
  * @retval 0 Nenhum empréstimo encontrado.
@@ -88,6 +100,8 @@ int listar_emprestimos_livro(int id_livro);
  * @brief Lista todos os empréstimos de um aluno.
  * 
  * @param matricula Identificador único do aluno.
+ * 
+ * @note Imprime os resultados via printf.
  * 
  * @return int
  * @retval 1 Listagem realizada com sucesso.
