@@ -51,38 +51,38 @@ int salvar_livros(const char *arquivo);
  * @retval 0 Livro já cadastrado.
  * @retval -1 Quantidade inválida (<= 0).
  */
-int cadastrar_livro(int isbn, char *titulo, char *autor, int ano, int quantidade);
+int cadastrar_livro(long isbn, char *titulo, char *autor, int ano, int quantidade);
 
 
 /**
  * @brief Realiza a busca por um livro.
  * 
- * @param id_livro Identificador único do livro.
+ * @param isbn Identificador único do livro.
  *
  * @return int
  * @retval 1 Livro encontrado.
  * @retval 0 Livro não encontrado.
  */
-int buscar_livro(int id_livro);
+int buscar_livro(long isbn);
 
 
 /**
  * @brief Retorna o título de um livro.
  *
- * @param id_livro Identificador único do livro.
+ * @param isbn Identificador único do livro.
  * @param titulo Vetor que receberá título do livro.
  *
  * @return int
  * @retval 1 Título obtido com sucesso.
  * @retval 0 Livro não encontrado.
  */
-int obter_titulo_livro(int id_livro, char* titulo);
+int obter_titulo_livro(long isbn, char* titulo);
 
 
 /**
  * @brief Altera a quantidade total de exemplares de um livro no acervo.
  * 
- * @param id_livro Identificador único do livro.
+ * @param isbn Identificador único do livro.
  * @param nova_quantidade Nova quantidade do livro.
  *
  * @return int
@@ -90,49 +90,49 @@ int obter_titulo_livro(int id_livro, char* titulo);
  * @retval 0 Livro não encontrado.
  * @retval -1 Quantidade inválida (menor do que exemplares emprestados).
  */
-int alterar_quantidade(int id_livro, int nova_quantidade);
+int alterar_quantidade(long isbn, int nova_quantidade);
 
 
 /**
  * @brief Verifica a disponibilidade para empréstimo de um livro no acervo.
  * @note Utilizada pelos módulos de empréstimos e reservas.
  *
- * @param id_livro Identificador único do livro.
+ * @param isbn Identificador único do livro.
  *
  * @return int
  * @retval 1 Livro disponível para empréstimo.
  * @retval 0 Livro indisponível para empréstimo.
  * @retval -1 Livro não encontrado.
  */
-int verificar_disponibilidade(int id_livro);
+int verificar_disponibilidade(long isbn);
 
 
 /**
  * @brief Reduz a quantidade de exemplares disponíveis para empréstimo de um livro no acervo.
  * @note Utilizada pelo módulo de empréstimos.
  *
- * @param id_livro Identificador único do livro.
+ * @param isbn Identificador único do livro.
  *
  * @return int
  * @retval 1 Redução realizada com sucesso.
  * @retval 0 Livro não encontrado. 
  * @retval -1 Quantidade de exemplares já é 0.
  */
-int reduzir_disponivel(int id_livro);
+int reduzir_disponivel(long isbn);
 
 
 /**
  * @brief Aumenta a quantidade de exemplares disponíveis para empréstimo de um livro no acervo.
  * @note Utilizada pelo módulo de empréstimos.
  *
- * @param id_livro Identificador único do livro.
+ * @param isbn Identificador único do livro.
  *
  * @return int
  * @retval 1 Aumento realizado com sucesso.
  * @retval 0 Livro não encontrado.
  * @retval -1 Quantidade de exemplares já é a quantidade total de exemplares.
  */
-int aumentar_disponivel(int id_livro);
+int aumentar_disponivel(long isbn);
 
 
 /**
@@ -148,13 +148,13 @@ int listar_livros();
 /**
  * @brief Exclui um livro.
  * 
- * @param id_livro Identificador único do livro.
+ * @param isbn Identificador único do livro.
  *
  * @return int
  * @retval 1 Livro excluído com sucesso.
  * @retval 0 Livro não encontrado.
  */
-int excluir_livro(int id_livro);
+int excluir_livro(long isbn);
 
 
 #endif
