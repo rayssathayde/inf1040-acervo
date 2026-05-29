@@ -76,7 +76,7 @@ int salvar_alunos(const char *arquivo) {
     if (arquivo == NULL) return -2; // ponteiro nulo
 
     FILE *fp = fopen(arquivo, "wb");
-    if (fp == NULL) return -1; // arquivo não existe ou está vazio
+    if (fp == NULL) return -1; // erro ao criar ou abrir o arquivo
     int qtd_alunos = 0;
     NoAluno *atual = inicio_alunos;
     while (atual != NULL) {
