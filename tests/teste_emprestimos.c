@@ -8,7 +8,7 @@
 
 
 void testar_emprestar_livro() {
-    devolver_livro(10341, 202410001); // limpa estado 
+    liberar_emprestimos(); // limpa estado 
     int caso_1 = emprestar_livro(10341, 202410001); // livro existe e disponivel, aluno existe
     checar(caso_1 == 1, "emprestar_livro: emprestimo valido");
     int caso_2 = emprestar_livro(10342, 202410001); // livro existe mas indisponivel, aluno existe
@@ -17,14 +17,14 @@ void testar_emprestar_livro() {
     checar(caso_3 == -1, "emprestar_livro: livro nao encontrado");
     int caso_4 = emprestar_livro(10341, 202820001); // livro existe e disponivel, aluno nao existe
     checar(caso_4 == -2, "emprestar_livro: aluno nao encontrado");
-    int caso_5a = emprestar_livro(10341, 202410001); // primeiro emprestimo
+    emprestar_livro(10341, 202410001); // primeiro emprestimo
     int caso_5 = emprestar_livro(10341, 202410001);  // mesmo livro, mesmo aluno - aluno esta com esse livro
     checar(caso_5 == -3, "emprestar_livro: aluno ja possui esse livro");
 }
 
 
 void testar_devolver_livro() {
-    devolver_livro(10341, 202410001); // limpa estado 
+    liberar_emprestimos(); // limpa estado 
     emprestar_livro(10341, 202410001); // realizar o emprestimo
     int caso_1 = devolver_livro(10341, 202410001); // emprestimo existe 
     checar(caso_1 == 1, "devolver_livro: devolucao valida");
@@ -38,7 +38,7 @@ void testar_devolver_livro() {
 
 
 void testar_listar_emprestimos_livro() {
-    devolver_livro(10341, 202410001); // limpa estado
+    liberar_emprestimos(); // limpa estado
     emprestar_livro(10341, 202410001); // realizar o emprestimo
     int caso_1 = listar_emprestimos_livro(10341); // emprestimo existe para esse livro
     checar(caso_1 == 1, "listar_emprestimos_livro: lista impressa com sucesso");
@@ -51,7 +51,7 @@ void testar_listar_emprestimos_livro() {
 
 
 void testar_listar_emprestimos_aluno() {
-    devolver_livro(10341, 202410001); // limpa estado 
+    liberar_emprestimos(); // limpa estado 
     emprestar_livro(10341, 202410001); // realizar o emprestimo
     int caso_1 = listar_emprestimos_aluno(202410001); // emprestimo existe para esse aluno
     checar(caso_1 == 1, "listar_emprestimos_aluno: lista impressa com sucesso");
@@ -64,7 +64,7 @@ void testar_listar_emprestimos_aluno() {
 
 
 void testar_aluno_possui_emprestimo() {
-    devolver_livro(10341, 202410001); // limpa estado
+    liberar_emprestimos(); // limpa estado
     emprestar_livro(10341, 202410001); // realizar o emprestimo
     int caso_1 = aluno_possui_emprestimo(202410001); // aluno possui emprestimo
     checar(caso_1 == 1, "aluno_possui_emprestimo: aluno possui emprestimo");
@@ -77,7 +77,7 @@ void testar_aluno_possui_emprestimo() {
 
 
 void testar_livro_esta_emprestado() {
-    devolver_livro(10341, 202410001); // limpa estado
+    liberar_emprestimos(); // limpa estado
     emprestar_livro(10341, 202410001); // realizar o emprestimo
     int caso_1 = livro_esta_emprestado(10341); // livro esta emprestado
     checar(caso_1 == 1, "livro_esta_emprestado: livro esta emprestado");
@@ -114,6 +114,7 @@ void testar_carregar_salvar_emprestimos() {
 
 
 int main() {
+    liberar_emprestimos(); // limpar estado
     printf("\n--- TESTES DE: emprestar_livro ---\n");
     testar_emprestar_livro();
 

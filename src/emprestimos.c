@@ -28,14 +28,16 @@ int carregar_emprestimos(const char *arquivo) {
     int encontrou = 0;
     int lidos;
 
-    while ((lidos = fscanf(fp, "%ld;%d\n", &isbn, &matricula)) != EOF) {
+    while ((lidos = fscanf(fp, "%ld;%d", &isbn, &matricula)) != EOF) {
         if (lidos != 2) {
             fclose(fp);
+            liberar_emprestimos(); 
             return -1; // arquivo corrompido, erro de leitura
         }
         struct no_emprestimo *novo = malloc(sizeof(struct no_emprestimo));
         if (novo == NULL) {
             fclose(fp);
+            liberar_emprestimos();
             return -2; // erro de alocacao, falta memoria
         }
         // insere dados 
@@ -115,7 +117,7 @@ int devolver_livro(long isbn, int matricula) {
         if (atual->dado.isbn == isbn && atual->dado.matricula == matricula) {
             if (anterior == NULL) 
                 lista_emprestimos = atual->proximo;
-            else if (anterior != NULL) 
+            else  
                 anterior->proximo = atual->proximo; 
             // remove emprestimo 
             free(atual);
