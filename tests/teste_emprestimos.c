@@ -89,6 +89,29 @@ void testar_livro_esta_emprestado() {
 }
 
 
+void testar_carregar_salvar_emprestimos() {
+    liberar_emprestimos(); // limpa estado
+    emprestar_livro(10341, 202410001); // cria emprestimo na lista
+
+    int caso_1 = salvar_emprestimos("data/teste_emprestimos.txt");
+    checar(caso_1 == 1, "salvar_emprestimos: dados salvos com sucesso");
+
+    liberar_emprestimos(); // limpa lista para testar o carregamento
+
+    int caso_2 = carregar_emprestimos("data/teste_emprestimos.txt");
+    checar(caso_2 == 1, "carregar_emprestimos: dados carregados com sucesso");
+
+    int caso_3 = aluno_possui_emprestimo(202410001); // verifica se o dado voltou
+    checar(caso_3 == 1, "carregar_emprestimos: dados recuperados corretamente");
+
+    int caso_4 = carregar_emprestimos("data/arquivo_inexistente.txt");
+    checar(caso_4 == 0, "carregar_emprestimos: arquivo inexistente");
+
+    liberar_emprestimos();
+    remove("data/teste_emprestimos.txt"); // remove arquivo temporario de teste
+}
+
+
 
 int main() {
     printf("\n--- TESTES DE: emprestar_livro ---\n");
@@ -108,5 +131,8 @@ int main() {
 
     printf("\n--- TESTES DE: livro_esta_emprestado ---\n");
     testar_livro_esta_emprestado();
+
+    printf("\n--- TESTES DE: carregar_emprestimos e salvar_emprestimos ---\n");
+    testar_carregar_salvar_emprestimos();
     return 0;
 }

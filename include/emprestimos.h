@@ -28,6 +28,7 @@ typedef struct emprestimo Emprestimo;
  * @retval 1 Dados carregados com sucesso.
  * @retval 0 Arquivo não existe ou está vazio (primeira inicialização).
  * @retval -1 Erro ao ler arquivo.
+ * @retval -2 Erro de alocação (falta memória).
  */
 int carregar_emprestimos(const char *arquivo);
 
@@ -60,6 +61,7 @@ int salvar_emprestimos(const char *arquivo);
  * @retval -1 Livro não encontrado.
  * @retval -2 Aluno não encontrado.
  * @retval -3 Aluno já está com esse livro.
+ * @retval -4 Erro de alocação, falta memória.
  */
 int emprestar_livro(long isbn, int matricula);
 
@@ -135,6 +137,15 @@ int aluno_possui_emprestimo(int matricula);
  * @retval -1 Livro não encontrado.
  */
 int livro_esta_emprestado(long isbn); 
+
+
+/**
+ * @brief Libera a memória alocada para a lista de empréstimos.
+ * 
+ * @return int
+ * @retval 1 Memória liberada com sucesso.
+ */
+int liberar_emprestimos(void);
 
 
 #endif
