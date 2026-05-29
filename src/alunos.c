@@ -1,11 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h> // <-- ADICIONADO: Necessário para strncpy, strcpy e strcmp
+#include <string.h>
 
 #include "alunos.h"
 
 #define TAM_STRING 100
-#define MAX_ALUNOS 100
 
 struct aluno {
     int matricula;
@@ -13,25 +12,60 @@ struct aluno {
     char curso[TAM_STRING];
 };
 
-static Aluno alunos[MAX_ALUNOS];
-static int qtd_alunos = 0;
+typedef struct no_aluno NoAluno;
+struct no_aluno {
+    struct aluno dados;
+    NoAluno *proximo;
+};
+
+static NoAluno *inicio_alunos = NULL;
 
 int carregar_alunos(const char *arquivo) {
-    if (arquivo == NULL) return -1;
+    if (arquivo == NULL) return -2; // ponteiro nulo
 
     FILE *fp = fopen(arquivo, "rb");
     if (fp == NULL) {
-        qtd_alunos = 0;
+        while (inicio_alunos != NULL) {
+            NoAluno *temp = inicio_alunos;
+            inicio_alunos = inicio_alunos->proximo;
+            free(temp);
+        }
         return 0; // arquivo não existe ou está vazio
     }
 
+    while (inicio_alunos != NULL) {
+        NoAluno *temp = inicio_alunos;
+        inicio_alunos = inicio_alunos->proximo;
+        free(temp);
+    }
+
+    int qtd_alunos = 0;
     if (fread(&qtd_alunos, sizeof(int), 1, fp) != 1) {
         fclose(fp);
-        return -1; // erro ao ler arquivo
+        return 0; // arquivo não existe ou está vazio
     }
     
-    if (qtd_alunos > 0) {
-        fread(alunos, sizeof(struct aluno), qtd_alunos, fp);
+    NoAluno *atual = NULL;
+    for (int i = 0; i < qtd_alunos; i++) {
+        NoAluno *novo = (NoAluno *)malloc(sizeof(NoAluno));
+        if (novo == NULL) {
+            fclose(fp);
+            return -3; // falha de alocação de memória
+        }
+        
+        if (fread(&(novo->dados), sizeof(struct aluno), 1, fp) != 1) {
+            free(novo);
+            fclose(fp);
+            return -1; // erro de leitura física no disco
+        }
+        novo->proximo = NULL;
+
+        if (inicio_alunos == NULL) {
+            inicio_alunos = novo;
+        } else {
+            atual->proximo = novo;
+        }
+        atual = novo;
     }
 
     fclose(fp);
@@ -39,94 +73,135 @@ int carregar_alunos(const char *arquivo) {
 }
 
 int salvar_alunos(const char *arquivo) {
-    if (arquivo == NULL) return -1;
+    if (arquivo == NULL) return -2; // ponteiro nulo
 
     FILE *fp = fopen(arquivo, "wb");
-    if (fp == NULL) return -1; // erro ao escrever
+    if (fp == NULL) return -1; // arquivo não existe ou está vazio
+    int qtd_alunos = 0;
+    NoAluno *atual = inicio_alunos;
+    while (atual != NULL) {
+        qtd_alunos++;
+        atual = atual->proximo;
+    }
 
-    fwrite(&qtd_alunos, sizeof(int), 1, fp);
-    fwrite(alunos, sizeof(struct aluno), qtd_alunos, fp);
+    if (fwrite(&qtd_alunos, sizeof(int), 1, fp) != 1) {
+        fclose(fp);
+        return -3; // erro de escrita no disco
+    }
+
+    atual = inicio_alunos;
+    while (atual != NULL) {
+        if (fwrite(&(atual->dados), sizeof(struct aluno), 1, fp) != 1) {
+            fclose(fp);
+            return -3; // erro de escrita no disco
+        }
+        atual = atual->proximo;
+    }
 
     fclose(fp);
-    return 1; // dados salvos
+    return 1; // dados salvos com sucesso
 }
 
-// CORRIGIDO: Removido o ';' intruso
 int cadastrar_aluno(int matricula, char *nome, char *curso) {
-    if (matricula <= 0) return -1;             // CORRIGIDO: alterado para <= 0
-    if (qtd_alunos >= MAX_ALUNOS) return -2; // limite máximo
-    if (nome == NULL || curso == NULL) return -3; // CORRIGIDO: curso == NULL
+    if (matricula <= 0) return -1; // matrícula inválida
+    if (nome == NULL || curso == NULL) return -3; // ponteiros inválidos
 
-    for(int i = 0; i<qtd_alunos; i++){
-        if (matricula == alunos[i].matricula)  return 0;
+    NoAluno *atual = inicio_alunos;
+    while (atual != NULL) {
+        if (atual->dados.matricula == matricula) {
+            return 0; // aluno já cadastrado
+        }
+        atual = atual->proximo;
     }
-    alunos[qtd_alunos].matricula = matricula;
-    
-    strncpy(alunos[qtd_alunos].nome, nome, TAM_STRING - 1);
-    alunos[qtd_alunos].nome[TAM_STRING - 1] = '\0';
-    
-    strncpy(alunos[qtd_alunos].curso, curso, TAM_STRING - 1);
-    alunos[qtd_alunos].curso[TAM_STRING - 1] = '\0';
 
-    qtd_alunos++;
-    return 1;
+    NoAluno *novo = (NoAluno *)malloc(sizeof(NoAluno));
+    if (novo == NULL) return -2; // falha de alocação de memória
+
+    novo->dados.matricula = matricula;
+    
+    strncpy(novo->dados.nome, nome, TAM_STRING - 1);
+    novo->dados.nome[TAM_STRING - 1] = '\0';
+    
+    strncpy(novo->dados.curso, curso, TAM_STRING - 1);
+    novo->dados.curso[TAM_STRING - 1] = '\0';
+
+    novo->proximo = NULL;
+
+    if (inicio_alunos == NULL) {
+        inicio_alunos = novo;
+    } else {
+        atual = inicio_alunos;
+        while (atual->proximo != NULL) {
+            atual = atual->proximo;
+        }
+        atual->proximo = novo;
+    }
+
+    return 1; // cadastro realizado com sucesso
 }
 
 int buscar_aluno(int matricula) {
-    if (matricula <= 0) return 0;
+    if (matricula <= 0) return -1; // matricula inválida
     
-    for (int i = 0; i < qtd_alunos; i++) {
-        if (alunos[i].matricula == matricula) { // CORRIGIDO: banco_alunos alterado para alunos
+    NoAluno *atual = inicio_alunos;
+    while (atual != NULL) {
+        if (atual->dados.matricula == matricula) {
             return 1; // aluno encontrado
         }
+        atual = atual->proximo;
     }
     return 0; // aluno não encontrado
 }
 
-int obter_nome_aluno(int matricula, char* nome){
-    if (nome == NULL || matricula <= 0) return 0; // aluno não encontrado
+int obter_nome_aluno(int matricula, char* nome) {
+    if (nome == NULL || matricula <= 0) return -1; // aluno inválido
     
-    for(int i = 0; i < qtd_alunos; i++){
-        if(alunos[i].matricula == matricula){
-            strcpy(nome,alunos[i].nome);
-            return 1; // nome obtido
+    NoAluno *atual = inicio_alunos;
+    while (atual != NULL) {
+        if (atual->dados.matricula == matricula) {
+            strcpy(nome, atual->dados.nome);
+            return 1; // nome obtido com sucesso
         }
+        atual = atual->proximo;
     }
-    return 0;
+    return 0; // aluno não encontrado
 }
 
 int listar_alunos() {
-    if (qtd_alunos == 0) return 0; // nenhum aluno cadastrado
+    if (inicio_alunos == NULL) return 0; // nenhum aluno cadastrado
 
     printf("\n=== LISTA DE ALUNOS ===\n");
-    for (int i = 0; i < qtd_alunos; i++) {
-        printf("Matricula: %d | Nome: %s | Curso: %s\n", 
-               alunos[i].matricula, 
-               alunos[i].nome, 
-               alunos[i].curso);
+    NoAluno *atual = inicio_alunos;
+    while (atual != NULL) {
+        printf("Matricula: %d | Nome: %s | Curso: %s\n",
+               atual->dados.matricula,
+               atual->dados.nome,
+               atual->dados.curso);
+        atual = atual->proximo;
     }
     printf("=======================\n");
     return 1; // listagem com sucesso
 }
 
 int excluir_aluno(int matricula) {
-    if (matricula <= 0) return 0;
+    if (matricula <= 0) return -1; // matrícula inválida
 
-    int indice = -1;
+    NoAluno *atual = inicio_alunos;
+    NoAluno *anterior = NULL;
 
-    for (int i = 0; i < qtd_alunos; i++) {
-        if (alunos[i].matricula == matricula) {
-            indice = i;
-            break; // achou
+    while (atual != NULL) {
+        if (atual->dados.matricula == matricula) {
+            if (anterior == NULL) {
+                inicio_alunos = atual->proximo;
+            } else {
+                anterior->proximo = atual->proximo;
+            }
+            free(atual);
+            return 1; // aluno excluído
         }
+        anterior = atual;
+        atual = atual->proximo;
     }
 
-    if (indice == -1) return 0; // aluno não encontrou
-
-    for (int i = indice; i < qtd_alunos - 1; i++) {
-        alunos[i] = alunos[i + 1];
-    }
-
-    qtd_alunos--;
-    return 1; // aluno excluido
+    return 0; // aluno não encontrado
 }
