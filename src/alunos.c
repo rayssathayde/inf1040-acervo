@@ -157,7 +157,7 @@ int cadastrar_aluno(int matricula, char *nome, char *curso) {
 }
 
 int buscar_aluno(int matricula) {
-    if (matricula <= 0) return -1; // matricula inválida
+    if (matricula <= 0) return -1; // matrícula inválida
     
     NoAluno *atual = inicio_alunos;
     while (atual != NULL) {
@@ -170,7 +170,7 @@ int buscar_aluno(int matricula) {
 }
 
 int obter_nome_aluno(int matricula, char* nome) {
-    if (nome == NULL || matricula <= 0) return -1; // aluno inválido
+    if (nome == NULL || matricula <= 0) return -1; // aluno inválido ou matrícula inválida
     
     NoAluno *atual = inicio_alunos;
     while (atual != NULL) {

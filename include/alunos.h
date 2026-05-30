@@ -84,7 +84,7 @@ int buscar_aluno(int matricula);
  * @return int
  * @retval 1 Nome obtido com sucesso.
  * @retval 0 Aluno não encontrado.
- * @retval -1 Aluno ou ponteiro inválido.
+ * @retval -1 Aluno ou matrícula inválido.
  */
 int obter_nome_aluno(int matricula, char* nome);
 
