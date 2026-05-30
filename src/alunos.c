@@ -60,13 +60,13 @@ int carregar_alunos(const char *arquivo) {
         }
 
         if (fgets(novo->dados.nome, TAM_STRING, fp) == NULL) {
-            free(novo); fclose(fp); return -1;
+            free(novo); fclose(fp); return -1; // erro de leitura física
         }
 
         novo->dados.nome[strcspn(novo->dados.nome, "\n")] = '\0';
 
         if (fgets(novo->dados.curso, TAM_STRING, fp) == NULL) {
-            free(novo); fclose(fp); return -1;
+            free(novo); fclose(fp); return -1; // erro de leitura física
         }
         novo->dados.curso[strcspn(novo->dados.curso, "\n")] = '\0';
 
