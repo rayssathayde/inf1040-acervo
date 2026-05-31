@@ -24,6 +24,8 @@ typedef struct emprestimo Emprestimo;
  * 
  * @param arquivo Caminho do arquivo de dados dos empréstimos.
  * 
+ * @pre O ponteiro 'arquivo' não pode ser nulo (NULL).
+ * 
  * @return int
  * @retval 1 Dados carregados com sucesso.
  * @retval 0 Arquivo não existe ou está vazio (primeira inicialização).
@@ -37,6 +39,8 @@ int carregar_emprestimos(const char *arquivo);
  * @brief Salva os dados de empréstimos no sistema.
  * 
  * @param arquivo Caminho do arquivo de dados dos empréstimos.
+ * 
+ * @pre O ponteiro 'arquivo' não pode ser nulo (NULL).
  * 
  * @return int
  * @retval 1 Dados salvos com sucesso.

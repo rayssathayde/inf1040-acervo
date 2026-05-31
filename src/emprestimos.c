@@ -21,7 +21,10 @@ static struct no_emprestimo *lista_emprestimos = NULL;
 
 int carregar_emprestimos(const char *arquivo) {
     FILE *fp = fopen(arquivo, "r");
-    if (fp == NULL) return 0; // arquivo nao existe ou vazio
+    liberar_emprestimos(); // limpar estado
+    
+    if (fp == NULL) 
+        return 0; // arquivo nao existe ou vazio    
 
     long isbn;
     int matricula;
