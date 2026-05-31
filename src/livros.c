@@ -3,446 +3,323 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <errno.h>
 
-#define TAM_TITULO 101
-#define TAM_AUTOR 101
-#define CAPACIDADE_INICIAL 10
 
 struct livro {
     long isbn;
-    char titulo[TAM_TITULO];
-    char autor[TAM_AUTOR];
+    char titulo[101];
+    char autor[101];
     int ano;
     int quantidade_total;
     int quantidade_disponivel;
 };
 
-static Livro *livros = NULL;
-static int quantidade_livros = 0;
-static int capacidade_livros = 0;
+struct no_livro {
+    Livro dados;
+    struct no_livro *proximo;
+};
 
-static void copiar_string(char *destino, const char *origem, size_t tamanho_destino) {
-    if (tamanho_destino == 0) {
-        return;
-    }
+typedef struct no_livro NoLivro;
 
-    if (origem == NULL) {
-        destino[0] = '\0';
-        return;
-    }
+static NoLivro *inicio_livros = NULL;
 
-    strncpy(destino, origem, tamanho_destino - 1);
-    destino[tamanho_destino - 1] = '\0';
-}
-
-static int linha_em_branco(const char *linha) {
-    int i;
-
-    if (linha == NULL) {
-        return 1;
-    }
-
-    for (i = 0; linha[i] != '\0'; i++) {
-        if (linha[i] != ' ' && linha[i] != '\t' && linha[i] != '\n' && linha[i] != '\r') {
-            return 0;
-        }
-    }
-
-    return 1;
-}
-
-static int encontrar_indice_livro(long isbn) {
-    int i;
-
-    for (i = 0; i < quantidade_livros; i++) {
-        if (livros[i].isbn == isbn) {
-            return i;
-        }
-    }
-
-    return -1;
-}
-
-static int encontrar_indice_no_vetor(Livro *vetor, int tamanho, long isbn) {
-    int i;
-
-    for (i = 0; i < tamanho; i++) {
-        if (vetor[i].isbn == isbn) {
-            return i;
-        }
-    }
-
-    return -1;
-}
-
-static int garantir_capacidade(int nova_quantidade) {
-    Livro *novo_vetor;
-    int nova_capacidade;
-
-    if (nova_quantidade <= capacidade_livros) {
-        return 1;
-    }
-
-    nova_capacidade = capacidade_livros == 0 ? CAPACIDADE_INICIAL : capacidade_livros;
-
-    while (nova_capacidade < nova_quantidade) {
-        nova_capacidade *= 2;
-    }
-
-    novo_vetor = (Livro *) realloc(livros, nova_capacidade * sizeof(Livro));
-    if (novo_vetor == NULL) {
-        return 0;
-    }
-
-    livros = novo_vetor;
-    capacidade_livros = nova_capacidade;
-
-    return 1;
-}
-
-static int garantir_capacidade_temporaria(Livro **vetor, int *capacidade, int nova_quantidade) {
-    Livro *novo_vetor;
-    int nova_capacidade;
-
-    if (nova_quantidade <= *capacidade) {
-        return 1;
-    }
-
-    nova_capacidade = *capacidade == 0 ? CAPACIDADE_INICIAL : *capacidade;
-
-    while (nova_capacidade < nova_quantidade) {
-        nova_capacidade *= 2;
-    }
-
-    novo_vetor = (Livro *) realloc(*vetor, nova_capacidade * sizeof(Livro));
-    if (novo_vetor == NULL) {
-        return 0;
-    }
-
-    *vetor = novo_vetor;
-    *capacidade = nova_capacidade;
-
-    return 1;
-}
 
 static int dados_livro_validos(long isbn, const char *titulo, const char *autor,
-                               int quantidade_total, int quantidade_disponivel) {
-    if (isbn <= 0) {
-        return 0;
-    }
-
-    if (titulo == NULL || titulo[0] == '\0') {
-        return 0;
-    }
-
-    if (autor == NULL || autor[0] == '\0') {
-        return 0;
-    }
-
-    if (quantidade_total <= 0) {
-        return 0;
-    }
-
-    if (quantidade_disponivel < 0 || quantidade_disponivel > quantidade_total) {
-        return 0;
-    }
-
+                               int quantidade_total) {
+    if (isbn <= 0) return 0;
+    if (titulo == NULL || titulo[0] == '\0') return 0;
+    if (autor == NULL || autor[0] == '\0') return 0;
+    if (quantidade_total <= 0) return 0;
     return 1;
 }
+
 
 int carregar_livros(const char *arquivo) {
-    FILE *fp;
-    Livro *livros_temporarios = NULL;
-    int qtd_temporaria = 0;
-    int capacidade_temporaria = 0;
-    char linha[512];
-    int encontrou_dados = 0;
+    if (arquivo == NULL) return -2; // ponteiro nulo
 
-    if (arquivo == NULL) {
-        return -1;
+    FILE *fp = fopen(arquivo, "r");
+    if (fp == NULL) return 0; // arquivo nao existe ou vazio
+
+    liberar_livros();
+
+    long isbn;
+    char titulo[101];
+    char autor[101];
+    int ano, total, disponivel;
+
+    while (fscanf(fp, "%ld;%100[^;];%100[^;];%d;%d;%d",
+                  &isbn, titulo, autor, &ano, &total, &disponivel) == 6) {
+
+        if (!dados_livro_validos(isbn, titulo, autor, total)) {
+            fclose(fp);
+            liberar_livros();
+            return -1; // erro de leitura
+        }
+
+        NoLivro *novo = malloc(sizeof(NoLivro));
+        if (novo == NULL) {
+            fclose(fp);
+            liberar_livros();
+            return -3; // falta memoria
+        }
+
+        novo->dados.isbn = isbn;
+        strcpy(novo->dados.titulo, titulo);
+        strcpy(novo->dados.autor, autor);
+        novo->dados.ano = ano;
+        novo->dados.quantidade_total = total;
+        novo->dados.quantidade_disponivel = disponivel;
+
+        novo->proximo = inicio_livros;
+        inicio_livros = novo;
     }
 
-    errno = 0;
-    fp = fopen(arquivo, "r");
-    if (fp == NULL) {
-        if (errno == ENOENT) {
-            return 0;
-        }
-        return -1;
-    }
-
-    while (fgets(linha, sizeof(linha), fp) != NULL) {
-        Livro livro_lido;
-        char titulo[TAM_TITULO];
-        char autor[TAM_AUTOR];
-        char extra;
-        int lidos;
-
-        if (linha_em_branco(linha)) {
-            continue;
-        }
-
-        encontrou_dados = 1;
-
-        lidos = sscanf(linha, "%ld;%100[^;];%100[^;];%d;%d;%d %c",
-                       &livro_lido.isbn,
-                       titulo,
-                       autor,
-                       &livro_lido.ano,
-                       &livro_lido.quantidade_total,
-                       &livro_lido.quantidade_disponivel,
-                       &extra);
-
-        if (lidos != 6) {
-            fclose(fp);
-            free(livros_temporarios);
-            return -1;
-        }
-
-        copiar_string(livro_lido.titulo, titulo, TAM_TITULO);
-        copiar_string(livro_lido.autor, autor, TAM_AUTOR);
-
-        if (!dados_livro_validos(livro_lido.isbn,
-                                 livro_lido.titulo,
-                                 livro_lido.autor,
-                                 livro_lido.quantidade_total,
-                                 livro_lido.quantidade_disponivel)) {
-            fclose(fp);
-            free(livros_temporarios);
-            return -1;
-        }
-
-        if (encontrar_indice_no_vetor(livros_temporarios, qtd_temporaria, livro_lido.isbn) != -1) {
-            fclose(fp);
-            free(livros_temporarios);
-            return -1;
-        }
-
-        if (!garantir_capacidade_temporaria(&livros_temporarios, &capacidade_temporaria, qtd_temporaria + 1)) {
-            fclose(fp);
-            free(livros_temporarios);
-            return -1;
-        }
-
-        livros_temporarios[qtd_temporaria] = livro_lido;
-        qtd_temporaria++;
-    }
-
-    if (ferror(fp)) {
+    if (!feof(fp)) {
         fclose(fp);
-        free(livros_temporarios);
-        return -1;
+        liberar_livros();
+        return -1; // arquivo corrompido
     }
 
-    if (fclose(fp) != 0) {
-        free(livros_temporarios);
-        return -1;
-    }
+    fclose(fp);
 
-    free(livros);
-    livros = livros_temporarios;
-    quantidade_livros = qtd_temporaria;
-    capacidade_livros = capacidade_temporaria;
-
-    if (!encontrou_dados) {
-        return 0;
-    }
-
-    return 1;
+    return (inicio_livros != NULL) ? 1 : 0; // carregamento com sucesso (1) ou arquivo vazio (0)
 }
+
 
 int salvar_livros(const char *arquivo) {
-    FILE *fp;
-    int i;
+    if (arquivo == NULL) return -2; // ponteiro nulo
 
-    if (arquivo == NULL) {
-        return -1;
-    }
+    FILE *fp = fopen(arquivo, "w");
+    if (fp == NULL) return -1; // erro ao abrir arquivo
 
-    fp = fopen(arquivo, "w");
-    if (fp == NULL) {
-        return -1;
-    }
+    NoLivro *atual = inicio_livros;
 
-    for (i = 0; i < quantidade_livros; i++) {
+    while (atual != NULL) {
         if (fprintf(fp, "%ld;%s;%s;%d;%d;%d\n",
-                    livros[i].isbn,
-                    livros[i].titulo,
-                    livros[i].autor,
-                    livros[i].ano,
-                    livros[i].quantidade_total,
-                    livros[i].quantidade_disponivel) < 0) {
+                    atual->dados.isbn,
+                    atual->dados.titulo,
+                    atual->dados.autor,
+                    atual->dados.ano,
+                    atual->dados.quantidade_total,
+                    atual->dados.quantidade_disponivel) < 0) {
             fclose(fp);
-            return -1;
+            return -3; // erro de escrita
         }
+        atual = atual->proximo;
     }
 
-    if (fclose(fp) != 0) {
-        return -1;
-    }
-
-    return 1;
+    fclose(fp);
+    return 1; // sucesso
 }
+
 
 int cadastrar_livro(long isbn, char *titulo, char *autor, int ano, int quantidade) {
-    Livro novo_livro;
+    if (titulo == NULL || autor == NULL) return -3; // ponteiros inválidos
 
-    if (quantidade <= 0) {
-        return -1;
-    }
+    if (isbn <= 0 || quantidade <= 0 || titulo[0] == '\0' || autor[0] == '\0')
+        return -1; // dados inválidos
 
-    if (isbn <= 0 || titulo == NULL || titulo[0] == '\0' || autor == NULL || autor[0] == '\0') {
-        return -1;
-    }
+    if (buscar_livro(isbn) == 1) return 0; // livro já cadastrado
 
-    if (buscar_livro(isbn)) {
-        return 0;
-    }
+    NoLivro *novo = malloc(sizeof(NoLivro));
+    if (novo == NULL) return -2; // falha de memória
 
-    if (!garantir_capacidade(quantidade_livros + 1)) {
-        return -1;
-    }
+    novo->dados.isbn = isbn;
+    strcpy(novo->dados.titulo, titulo);
+    strcpy(novo->dados.autor, autor);
+    novo->dados.ano = ano;
+    novo->dados.quantidade_total = quantidade;
+    novo->dados.quantidade_disponivel = quantidade;
 
-    novo_livro.isbn = isbn;
-    copiar_string(novo_livro.titulo, titulo, TAM_TITULO);
-    copiar_string(novo_livro.autor, autor, TAM_AUTOR);
-    novo_livro.ano = ano;
-    novo_livro.quantidade_total = quantidade;
-    novo_livro.quantidade_disponivel = quantidade;
+    novo->proximo = inicio_livros;
+    inicio_livros = novo;
 
-    livros[quantidade_livros] = novo_livro;
-    quantidade_livros++;
-
-    return 1;
+    return 1; // sucesso
 }
+
 
 int buscar_livro(long isbn) {
-    return encontrar_indice_livro(isbn) != -1 ? 1 : 0;
-}
+    if (isbn <= 0) return 0; // livro não encontrado (isbn invalido)
 
-int obter_titulo_livro(long isbn, char *titulo) {
-    int indice;
+    NoLivro *atual = inicio_livros;
 
-    if (titulo == NULL) {
-        return 0;
+    while (atual != NULL) {
+        if (atual->dados.isbn == isbn) {
+            return 1; // livro encontrado
+        }
+        atual = atual->proximo;
     }
 
-    indice = encontrar_indice_livro(isbn);
-    if (indice == -1) {
-        return 0;
+    return 0; // livro nao encontrado
+}
+
+
+int obter_titulo_livro(long isbn, char* titulo) {
+    if (titulo == NULL) return -1; // ponteiro inválido
+
+    NoLivro *atual = inicio_livros;
+
+    while (atual != NULL) {
+        if (atual->dados.isbn == isbn) {
+            strcpy(titulo, atual->dados.titulo);
+            return 1; // sucesso
+        }
+        atual = atual->proximo;
     }
 
-    strcpy(titulo, livros[indice].titulo);
-    return 1;
+    return 0; // livro não encontrado
 }
+
 
 int alterar_quantidade(long isbn, int nova_quantidade) {
-    int indice;
-    int quantidade_emprestada;
+    if (nova_quantidade <= 0) return -1; // quantidade inválida
 
-    indice = encontrar_indice_livro(isbn);
-    if (indice == -1) {
-        return 0;
+    NoLivro *atual = inicio_livros;
+
+    while (atual != NULL) {
+        if (atual->dados.isbn == isbn) {
+
+            int emprestados = atual->dados.quantidade_total - atual->dados.quantidade_disponivel;
+
+            if (nova_quantidade < emprestados)
+                return -1; // não pode ser menor que os emprestados
+
+            // ajusta quantidade disponível proporcionalmente
+            int diferenca = nova_quantidade - atual->dados.quantidade_total;
+
+            atual->dados.quantidade_total = nova_quantidade;
+            atual->dados.quantidade_disponivel += diferenca;
+
+            return 1; // sucesso
+        }
+        atual = atual->proximo;
     }
 
-    quantidade_emprestada = livros[indice].quantidade_total - livros[indice].quantidade_disponivel;
-
-    if (nova_quantidade <= 0 || nova_quantidade < quantidade_emprestada) {
-        return -1;
-    }
-
-    livros[indice].quantidade_total = nova_quantidade;
-    livros[indice].quantidade_disponivel = nova_quantidade - quantidade_emprestada;
-
-    return 1;
+    return 0; // livro não encontrado
 }
+
 
 int verificar_disponibilidade(long isbn) {
-    int indice;
+    NoLivro *atual = inicio_livros;
 
-    indice = encontrar_indice_livro(isbn);
-    if (indice == -1) {
-        return -1;
+    while (atual != NULL) {
+        if (atual->dados.isbn == isbn) {
+            if (atual->dados.quantidade_disponivel > 0)
+                return 1; // disponível
+            else
+                return 0; // indisponível
+        }
+        atual = atual->proximo;
     }
 
-    return livros[indice].quantidade_disponivel > 0 ? 1 : 0;
+    return -1; // livro não encontrado
 }
+
 
 int reduzir_disponivel(long isbn) {
-    int indice;
+    NoLivro *atual = inicio_livros;
 
-    indice = encontrar_indice_livro(isbn);
-    if (indice == -1) {
-        return 0;
+    while (atual != NULL) {
+        if (atual->dados.isbn == isbn) {
+
+            if (atual->dados.quantidade_disponivel == 0)
+                return -1; // nenhum exemplar disponível
+
+            atual->dados.quantidade_disponivel--;
+            return 1; // sucesso
+        }
+        atual = atual->proximo;
     }
 
-    if (livros[indice].quantidade_disponivel <= 0) {
-        return -1;
-    }
-
-    livros[indice].quantidade_disponivel--;
-    return 1;
+    return 0; // livro não encontrado
 }
+
 
 int aumentar_disponivel(long isbn) {
-    int indice;
+    NoLivro *atual = inicio_livros;
 
-    indice = encontrar_indice_livro(isbn);
-    if (indice == -1) {
-        return 0;
+    while (atual != NULL) {
+        if (atual->dados.isbn == isbn) {
+
+            if (atual->dados.quantidade_disponivel == atual->dados.quantidade_total)
+                return -1; // todos já estão disponíveis
+
+            atual->dados.quantidade_disponivel++;
+            return 1; // sucesso
+        }
+        atual = atual->proximo;
     }
 
-    if (livros[indice].quantidade_disponivel >= livros[indice].quantidade_total) {
-        return -1;
-    }
-
-    livros[indice].quantidade_disponivel++;
-    return 1;
+    return 0; // livro não encontrado
 }
 
-int listar_livros() {
-    int i;
 
-    if (quantidade_livros == 0) {
+int listar_livros() {
+    NoLivro *atual = inicio_livros;
+
+    if (atual == NULL) {
         printf("Nenhum livro cadastrado.\n");
         return 0;
     }
 
-    printf("==================== LISTA DE LIVROS ====================\n");
+    printf("\n=== LISTA DE LIVROS ===\n");
 
-    for (i = 0; i < quantidade_livros; i++) {
-        printf("ISBN: %ld\n", livros[i].isbn);
-        printf("Titulo: %s\n", livros[i].titulo);
-        printf("Autor: %s\n", livros[i].autor);
-        printf("Ano: %d\n", livros[i].ano);
-        printf("Quantidade total: %d\n", livros[i].quantidade_total);
-        printf("Quantidade disponivel: %d\n", livros[i].quantidade_disponivel);
-        printf("----------------------------------------------------------\n");
+    while (atual != NULL) {
+        printf("ISBN: %ld | Titulo: %s | Autor: %s | Ano: %d | Total: %d | Disponiveis: %d\n",
+               atual->dados.isbn,
+               atual->dados.titulo,
+               atual->dados.autor,
+               atual->dados.ano,
+               atual->dados.quantidade_total,
+               atual->dados.quantidade_disponivel);
+
+        atual = atual->proximo;
     }
+
+    printf("========================\n");
 
     return 1;
 }
 
+
 int excluir_livro(long isbn) {
-    int indice;
-    int i;
+    NoLivro *atual = inicio_livros;
+    NoLivro *anterior = NULL;
 
-    indice = encontrar_indice_livro(isbn);
-    if (indice == -1) {
-        return 0;
+    while (atual != NULL) {
+        if (atual->dados.isbn == isbn) {
+
+            if (atual->dados.quantidade_disponivel != atual->dados.quantidade_total)
+                return -2; // possui empréstimos ativos
+
+            if (anterior == NULL) {
+                inicio_livros = atual->proximo;
+            } else {
+                anterior->proximo = atual->proximo;
+            }
+
+            free(atual);
+            return 1; // sucesso
+        }
+
+        anterior = atual;
+        atual = atual->proximo;
     }
 
-    if (livros[indice].quantidade_disponivel < livros[indice].quantidade_total) {
-        printf("Livro nao pode ser excluido, pois possui exemplar emprestado.\n");
-        return 0;
+    return 0; // livro não encontrado
+}
+
+
+int liberar_livros(void) {
+    NoLivro *atual = inicio_livros;
+
+    while (atual != NULL) {
+        NoLivro *temp = atual;
+        atual = atual->proximo;
+        free(temp);
     }
 
-    for (i = indice; i < quantidade_livros - 1; i++) {
-        livros[i] = livros[i + 1];
-    }
+    inicio_livros = NULL;
 
-    quantidade_livros--;
-
-    return 1;
+    return 1; // memória liberada com sucesso
 }
