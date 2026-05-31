@@ -29,8 +29,9 @@ typedef struct emprestimo Emprestimo;
  * @return int
  * @retval 1 Dados carregados com sucesso.
  * @retval 0 Arquivo não existe ou está vazio (primeira inicialização).
- * @retval -1 Erro ao ler arquivo.
- * @retval -2 Erro de alocação (falta memória).
+ * @retval -1 Erro de leitura física no disco.
+ * @retval -2 Ponteiro nulo.
+ * @retval -3 Falha de alocação de memória.
  */
 int carregar_emprestimos(const char *arquivo);
 
@@ -44,7 +45,9 @@ int carregar_emprestimos(const char *arquivo);
  * 
  * @return int
  * @retval 1 Dados salvos com sucesso.
- * @retval -1 Erro ao escrever no arquivo.
+ * @retval -1 Erro ao criar ou abrir o arquivo no disco.
+ * @retval -2 Ponteiro nulo.
+ * @retval -3 Erro de escrita no disco.
  */
 int salvar_emprestimos(const char *arquivo);
 
