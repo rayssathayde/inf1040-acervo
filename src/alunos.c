@@ -25,22 +25,14 @@ int carregar_alunos(const char *arquivo) {
 
     FILE *fp = fopen(arquivo, "r");
     if (fp == NULL) {
-        while (inicio_alunos != NULL) {
-            NoAluno *temp = inicio_alunos;
-            inicio_alunos = inicio_alunos->proximo;
-            free(temp);
-        }
+        liberar_alunos();
         return 0; // arquivo não existe ou está vazio
     }
 
-    while (inicio_alunos != NULL) {
-        NoAluno *temp = inicio_alunos;
-        inicio_alunos = inicio_alunos->proximo;
-        free(temp);
-    }
+    liberar_alunos();
 
     int qtd_alunos = 0;
-    if (fscanf(fp, "%d\n", &qtd_alunos) != 1) {
+    if (fscanf(fp, "%d", &qtd_alunos) != 1) {
         fclose(fp);
         return 0; // arquivo corrompido ou vazio
     }
@@ -50,23 +42,31 @@ int carregar_alunos(const char *arquivo) {
         NoAluno *novo = (NoAluno *)malloc(sizeof(NoAluno));
         if (novo == NULL) {
             fclose(fp);
+            liberar_alunos();
             return -3; // falha de alocação de memória
         }
         
-        if (fscanf(fp, "%d\n", &(novo->dados.matricula)) != 1) {
+        if (fscanf(fp, "%d", &(novo->dados.matricula)) != 1) {
             free(novo);
             fclose(fp);
+            liberar_alunos();
             return -1; // erro de leitura física
         }
 
         if (fgets(novo->dados.nome, TAM_STRING, fp) == NULL) {
-            free(novo); fclose(fp); return -1; // erro de leitura física
+            free(novo); 
+            fclose(fp); 
+            liberar_alunos();
+            return -1; // erro de leitura física
         }
 
         novo->dados.nome[strcspn(novo->dados.nome, "\n")] = '\0';
 
         if (fgets(novo->dados.curso, TAM_STRING, fp) == NULL) {
-            free(novo); fclose(fp); return -1; // erro de leitura física
+            free(novo); 
+            fclose(fp); 
+            liberar_alunos(); 
+            return -1; // erro de leitura física
         }
         novo->dados.curso[strcspn(novo->dados.curso, "\n")] = '\0';
 
@@ -118,8 +118,28 @@ int salvar_alunos(const char *arquivo) {
     return 1; // dados salvos com sucesso
 }
 
+
+static int matricula_valida(int matricula) {
+    if (matricula <= 0) return 0; // matricula invalida
+
+    char str[20];
+    sprintf(str, "%d", matricula);
+
+    if (strlen(str) != 7) return 0;
+
+    // dois primeiros digitos: 20-26
+    int ano = (str[0] - '0') * 10 + (str[1] - '0');
+    if (ano < 20 || ano > 26) return 0;
+
+    // terceiro digito: 1 ou 2
+    int periodo = str[2] - '0';
+    if (periodo != 1 && periodo != 2) return 0; // matricula invalida
+
+    return 1;
+}
+
 int cadastrar_aluno(int matricula, char *nome, char *curso) {
-    if (matricula <= 0) return -1; // matrícula inválida
+    if (!matricula_valida(matricula)) return -1; // matrícula inválida
     if (nome == NULL || curso == NULL) return -3; // ponteiros inválidos
 
     NoAluno *atual = inicio_alunos;
@@ -157,7 +177,7 @@ int cadastrar_aluno(int matricula, char *nome, char *curso) {
 }
 
 int buscar_aluno(int matricula) {
-    if (matricula <= 0) return -1; // matrícula inválida
+    if (!matricula_valida(matricula)) return -1; // matrícula inválida
     
     NoAluno *atual = inicio_alunos;
     while (atual != NULL) {
@@ -170,7 +190,7 @@ int buscar_aluno(int matricula) {
 }
 
 int obter_nome_aluno(int matricula, char* nome) {
-    if (nome == NULL || matricula <= 0) return -1; // aluno inválido ou matrícula inválida
+    if (nome == NULL || !matricula_valida(matricula)) return -1; // aluno inválido ou matrícula inválida
     
     NoAluno *atual = inicio_alunos;
     while (atual != NULL) {
@@ -200,7 +220,7 @@ int listar_alunos() {
 }
 
 int excluir_aluno(int matricula) {
-    if (matricula <= 0) return -1; // matrícula inválida
+    if (!matricula_valida(matricula)) return -1; // matrícula inválida
 
     NoAluno *atual = inicio_alunos;
     NoAluno *anterior = NULL;
@@ -220,4 +240,16 @@ int excluir_aluno(int matricula) {
     }
 
     return 0; // aluno não encontrado
+}
+
+
+int liberar_alunos(void) {
+    NoAluno *atual = inicio_alunos;
+    while (atual != NULL) {
+        NoAluno *proximo = atual->proximo;
+        free(atual);
+        atual = proximo;
+    }
+    inicio_alunos = NULL;
+    return 1;
 }

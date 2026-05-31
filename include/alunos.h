@@ -10,6 +10,7 @@
  * @details
  * Este módulo é independente e atua como base para os módulos de
  * empréstimos e reservas.
+ * 
  * @pre carregar_alunos() deve ser chamado antes de qualquer função deste módulo.
  */
 
@@ -18,8 +19,12 @@ typedef struct aluno Aluno;
 
 /**
  * @brief Carrega dados de alunos no sistema.
- * * @param arquivo Caminho do arquivo de dados dos alunos.
- * * @return int
+ * 
+ * @param arquivo Caminho do arquivo de dados dos alunos.
+ * 
+ * @pre O ponteiro 'arquivo' não pode ser nulo (NULL).
+ * 
+ * @return int
  * @retval 1 Dados carregados com sucesso.
  * @retval 0 Arquivo não existe ou está vazio (primeira inicialização).
  * @retval -1 Erro de leitura física no disco.
@@ -31,8 +36,12 @@ int carregar_alunos(const char *arquivo);
 
 /**
  * @brief Salva os dados de alunos no sistema.
- * * @param arquivo Caminho do arquivo de dados dos alunos.
- * * @return int
+ * 
+ * @param arquivo Caminho do arquivo de dados dos alunos.
+ * 
+ * @pre O ponteiro 'arquivo' não pode ser nulo (NULL).
+ * 
+ * @return int
  * @retval 1 Dados salvos com sucesso.
  * @retval -1 Erro ao criar ou abrir o arquivo no disco.
  * @retval -2 Ponteiro nulo.
@@ -43,7 +52,8 @@ int salvar_alunos(const char *arquivo);
 
 /**
  * @brief Realiza o cadastro de um aluno de forma dinâmica.
- * * @param matricula Identificador único do aluno.
+ * 
+ * @param matricula Identificador único do aluno.
  * @param nome Nome do aluno.
  * @param curso Curso que o aluno está matriculado.
  *
@@ -63,7 +73,8 @@ int cadastrar_aluno(int matricula, char *nome, char *curso);
 
 /**
  * @brief Realiza a busca por um aluno na lista.
- * * @param matricula Identificador único do aluno.
+ * 
+ * @param matricula Identificador único do aluno.
  *
  * @return int 
  * @retval 1 Aluno encontrado.
@@ -91,7 +102,8 @@ int obter_nome_aluno(int matricula, char* nome);
 
 /**
  * @brief Lista todos os alunos cadastrados no console.
- * * @return int
+ * 
+ * @return int
  * @retval 1 Listagem realizada com sucesso.
  * @retval 0 Nenhum aluno cadastrado.
  */
@@ -100,9 +112,10 @@ int listar_alunos();
 
 /**
  * @brief Exclui um aluno da lista e liberta a sua memória.
- * * @param matricula Identificador único do aluno.
+ * 
+ * @param matricula Identificador único do aluno.
  *
- * @post Se retornou 1, o nó correspondente foi libertado da memória.
+ * @post Se retornou 1, o nó correspondente foi liberado da memória.
  *
  * @return int
  * @retval 1 Aluno excluído com sucesso.
@@ -110,5 +123,14 @@ int listar_alunos();
  * @retval -1 Matrícula inválida.
  */
 int excluir_aluno(int matricula);
+
+
+/**
+ * @brief Libera a memória alocada para a lista de alunos.
+ * 
+ * @return int
+ * @retval 1 Memória liberada com sucesso.
+ */
+int liberar_alunos(void);
 
 #endif
