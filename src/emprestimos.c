@@ -232,6 +232,20 @@ int livro_esta_emprestado(long isbn) {
 }
 
 
+int verificar_emprestimo(long isbn, int matricula) {
+    if (!buscar_livro(isbn)) return -1;
+    if (buscar_aluno(matricula) != 1) return -2;
+
+    struct no_emprestimo *atual = lista_emprestimos;
+    while (atual != NULL) {
+        if (atual->dado.isbn == isbn && atual->dado.matricula == matricula)
+            return 1;
+        atual = atual->proximo;
+    }
+    return 0;
+}
+
+
 int liberar_emprestimos(void) {
     struct no_emprestimo *atual = lista_emprestimos;
     while (atual != NULL) {
