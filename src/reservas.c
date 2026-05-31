@@ -48,6 +48,11 @@ int carregar_reservas(const char *arquivo) {
         atual = novo;
     }
 
+    if (!feof(f)) {
+        fclose(f);
+        liberar_reservas();
+        return -1;
+    }
     fclose(f);
     return (inicio_fila != NULL) ? 1 : 0;  // dados carregados com sucesso
 }

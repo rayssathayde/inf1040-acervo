@@ -91,7 +91,7 @@ int emprestar_livro(long isbn, int matricula) {
     int aluno = buscar_aluno(matricula);
    
     if (!livro) return -1; // livro nao encontrado
-    if (!aluno) return -2; // aluno nao encontrado
+    if (aluno != 1) return -2; // aluno nao encontrado
 
     // verifica se aluno ja esta com esse livro
     struct no_emprestimo *atual = lista_emprestimos;
@@ -122,7 +122,7 @@ int devolver_livro(long isbn, int matricula) {
     int aluno = buscar_aluno(matricula);
 
     if (!livro) return -1; // livro nao encontrado
-    if (!aluno) return -2; // aluno nao encontrado
+    if (aluno != 1) return -2; // aluno nao encontrado
 
     struct no_emprestimo *atual = lista_emprestimos;
     struct no_emprestimo *anterior = NULL;
@@ -177,7 +177,7 @@ int listar_emprestimos_livro(long isbn) {
 
 int listar_emprestimos_aluno(int matricula) {
     int aluno = buscar_aluno(matricula);
-    if (!aluno) {
+    if (aluno != 1) {
         printf("Aluno(a) nao encontrado(a)!\n");
         return -1;
     } 
@@ -206,7 +206,7 @@ int listar_emprestimos_aluno(int matricula) {
 
 int aluno_possui_emprestimo(int matricula) {
     int aluno = buscar_aluno(matricula);
-    if (!aluno) return -1; // aluno nao encontrado
+    if (aluno != 1) return -1; // aluno nao encontrado
 
     struct no_emprestimo *atual = lista_emprestimos;
     while (atual != NULL) {

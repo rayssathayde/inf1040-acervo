@@ -36,6 +36,8 @@ int carregar_alunos(const char *arquivo) {
         fclose(fp);
         return 0; // arquivo corrompido ou vazio
     }
+
+    fgetc(fp); // 🔥 consome o '\n' após o contador
     
     NoAluno *atual = NULL;
     for (int i = 0; i < qtd_alunos; i++) {
@@ -52,6 +54,8 @@ int carregar_alunos(const char *arquivo) {
             liberar_alunos();
             return -1; // erro de leitura física
         }
+
+        fgetc(fp); // 🔥 consome o '\n' antes do nome
 
         if (fgets(novo->dados.nome, TAM_STRING, fp) == NULL) {
             free(novo); 
