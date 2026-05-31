@@ -20,6 +20,9 @@ static struct no_emprestimo *lista_emprestimos = NULL;
 
 
 int carregar_emprestimos(const char *arquivo) {
+    if (arquivo == NULL) 
+        return -2; // ponteiro nulo
+
     FILE *fp = fopen(arquivo, "r");
     liberar_emprestimos(); // limpar estado
     
@@ -41,7 +44,7 @@ int carregar_emprestimos(const char *arquivo) {
         if (novo == NULL) {
             fclose(fp);
             liberar_emprestimos();
-            return -2; // erro de alocacao, falta memoria
+            return -3; // erro de alocacao, falta memoria
         }
         // insere dados 
         novo->dado.isbn = isbn;
@@ -50,6 +53,13 @@ int carregar_emprestimos(const char *arquivo) {
         lista_emprestimos = novo;
         encontrou = 1;
     }
+
+    if (!feof(fp)) {
+        fclose(fp);
+        liberar_emprestimos();
+        return -1; // arquivo corrompido, erro de leitura
+    }
+
     fclose(fp);
     if (encontrou) return 1;
     return 0;
@@ -57,6 +67,8 @@ int carregar_emprestimos(const char *arquivo) {
 
 
 int salvar_emprestimos(const char *arquivo) {
+    if (arquivo == NULL) return -2;
+
     FILE *fp = fopen(arquivo, "w");
     if (fp == NULL) return -1;
 
@@ -64,7 +76,7 @@ int salvar_emprestimos(const char *arquivo) {
     while (atual != NULL) {
         if (fprintf(fp, "%ld;%d\n", atual->dado.isbn, atual->dado.matricula) < 0) {
             fclose(fp);
-            return -1;
+            return -3;
         }
         atual = atual->proximo;
     }
