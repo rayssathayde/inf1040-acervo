@@ -15,6 +15,7 @@ struct nolistareserva {
     Reserva dados;
     struct nolistareserva *proximo;
 };
+typedef struct nolistareserva NoListaReserva;
 
 static NoListaReserva *inicio_fila = NULL;
 
@@ -24,19 +25,16 @@ int carregar_reservas(const char *arquivo) {
     FILE *f = fopen(arquivo, "r");
     if (f == NULL) return 0; // arquivo não existe ou está vazio
 
-    while (inicio_fila != NULL) {
-        NoListaReserva *temp = inicio_fila;
-        inicio_fila = inicio_fila->proximo;
-        free(temp);
-    }
+    liberar_reservas();
 
     Reserva res;
     NoListaReserva *atual = NULL;
     
-    while (fscanf(f, "%ld\n%d\n", &res.isbn, &res.matricula) == 2) {
+    while (fscanf(f, "%ld;%d", &res.isbn, &res.matricula) == 2) {
         NoListaReserva *novo = (NoListaReserva *)malloc(sizeof(NoListaReserva));
         if (novo == NULL) {
             fclose(f);
+            liberar_reservas();
             return -3; // falha na alocação de memoria
         }
         novo->dados = res;
@@ -51,7 +49,7 @@ int carregar_reservas(const char *arquivo) {
     }
 
     fclose(f);
-    return 1;  // dados carregados com sucesso
+    return (inicio_fila != NULL) ? 1 : 0;  // dados carregados com sucesso
 }
 
 int salvar_reservas(const char *arquivo) {
@@ -62,7 +60,7 @@ int salvar_reservas(const char *arquivo) {
 
     NoListaReserva *atual = inicio_fila;
     while (atual != NULL) {
-        if (fprintf(f, "%ld\n%d\n", atual->dados.isbn, atual->dados.matricula) < 0) {
+        if (fprintf(f, "%ld;%d\n", atual->dados.isbn, atual->dados.matricula) < 0) {
             fclose(f);
             return -1; // erro ao escrever no arquivo
         }
@@ -75,9 +73,9 @@ int salvar_reservas(const char *arquivo) {
 
 int criar_reserva(long isbn, int matricula) {
     if (buscar_livro(isbn) == 0) return -1; // livro não encontrado
-    if (quantidade_disponivel(isbn) > 0) return 0; // livro disponível para empréstimo (não precisa reservar)
+    if (buscar_aluno(matricula) != 1) return -2; // aluno não encontrado 
 
-    if (buscar_aluno(matricula) == 0) return -2; // aluno não encontrado
+    if (verificar_disponibilidade(isbn) == 1) return 0; // livro disponível para empréstimo (não precisa reservar)
 
     NoListaReserva *atual = inicio_fila;
     while (atual != NULL) {
@@ -109,7 +107,7 @@ int criar_reserva(long isbn, int matricula) {
 
 int cancelar_reserva(long isbn, int matricula) {
     if (buscar_livro(isbn) == 0) return -1; // livro não encontrado
-    if (buscar_aluno(matricula) == 0) return -2;  // aluno não encontrado
+    if (buscar_aluno(matricula) != 1) return -2;  // aluno não encontrado
 
     NoListaReserva *atual = inicio_fila;
     NoListaReserva *anterior = NULL;
@@ -160,7 +158,7 @@ int listar_reservas_livro(long isbn) {
 }
 
 int listar_reservas_aluno(int matricula) {
-    if (buscar_aluno(matricula) == 0) return -1; // aluno não encontrado
+    if (buscar_aluno(matricula) != 1) return -1; // aluno não encontrado
 
     int encontrou = 0;
     NoListaReserva *atual = inicio_fila;
@@ -199,4 +197,16 @@ int proxima_reserva(long isbn, int *matricula) {
     }
 
     return 0; // não há reservas
+}
+
+
+int liberar_reservas(void) {
+    NoListaReserva *atual = inicio_fila;
+    while (atual != NULL) {
+        NoListaReserva *proximo = atual->proximo;
+        free(atual);
+        atual = proximo;
+    }
+    inicio_fila = NULL;
+    return 1;
 }

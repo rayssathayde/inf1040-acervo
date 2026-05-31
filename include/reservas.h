@@ -18,13 +18,14 @@
  */
 
 typedef struct reserva Reserva;
-typedef struct nolistareserva NoListaReserva; //nao precisa estar no .h pode so deixar no .c
 
 
 /**
  * @brief Carrega dados de reservas no sistema.
  * 
  * @param arquivo Caminho do arquivo de dados das reservas.
+ * 
+ * @pre O ponteiro 'arquivo' não pode ser nulo (NULL).
  * 
  * @return int
  * @retval 1 Dados carregados com sucesso.
@@ -41,9 +42,10 @@ int carregar_reservas(const char *arquivo);
  * 
  * @param arquivo Caminho do arquivo de dados das reservas.
  * 
+ * @pre O ponteiro 'arquivo' não pode ser nulo (NULL).
+ * 
  * @return int
  * @retval 1 Dados salvos com sucesso.
- * @retval 0 Arquivo não existe ou está vazio (primeira inicialização).
  * @retval -1 Erro ao escrever no arquivo.
  * @retval -2 Ponteiro nulo.
  */
@@ -57,6 +59,7 @@ int salvar_reservas(const char *arquivo);
  * @param matricula Identificador único do aluno.
  * 
  * @note Um aluno não pode reservar o mesmo livro mais de uma vez simultaneamente.
+ * @note A reserva só é permitida se o livro estiver indisponível.
  * 
  * @return int 
  * @retval 1 Reserva realizada com sucesso.
@@ -126,9 +129,18 @@ int listar_reservas_aluno(int matricula);
  * @retval 1 Próxima reserva encontrada (matrícula preenchida).
  * @retval 0 Não há reservas.
  * @retval -1 Livro não encontrado.
- * @retval -2 Matrícula inválida.
+ * @retval -2 Ponteiro inválido (matricula == NULL).
  */
 int proxima_reserva(long isbn, int *matricula);
+
+
+/**
+ * @brief Libera a memória alocada para a lista de reservas.
+ * 
+ * @return int
+ * @retval 1 Memória liberada com sucesso.
+ */
+int liberar_reservas(void);
 
 
 
