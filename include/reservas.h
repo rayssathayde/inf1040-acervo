@@ -10,10 +10,14 @@
  * @details
  * Este módulo depende dos módulos de alunos e livros para validação
  * de dados e controle de disponibilidade.
+ * 
+ * @pre carregar_alunos() deve ser chamado antes de qualquer função deste módulo.
+ * @pre carregar_livros() deve ser chamado antes de qualquer função deste módulo.
+ * @pre carregar_reservas() deve ser chamado antes de qualquer outra função deste módulo.
+ * 
  */
 
 typedef struct reserva Reserva;
-typedef struct nolistareserva NoListaReserva; //nao precisa estar no .h pode so deixar no .c
 
 
 /**
@@ -21,10 +25,14 @@ typedef struct nolistareserva NoListaReserva; //nao precisa estar no .h pode so 
  * 
  * @param arquivo Caminho do arquivo de dados das reservas.
  * 
+ * @pre O ponteiro 'arquivo' não pode ser nulo (NULL).
+ * 
  * @return int
  * @retval 1 Dados carregados com sucesso.
  * @retval 0 Arquivo não existe ou está vazio (primeira inicialização).
  * @retval -1 Erro ao ler arquivo.
+ * @retval -2 Ponteiro nulo.
+ * @retval -3 Falha de alocação de memória.
  */
 int carregar_reservas(const char *arquivo);
 
@@ -34,9 +42,12 @@ int carregar_reservas(const char *arquivo);
  * 
  * @param arquivo Caminho do arquivo de dados das reservas.
  * 
+ * @pre O ponteiro 'arquivo' não pode ser nulo (NULL).
+ * 
  * @return int
  * @retval 1 Dados salvos com sucesso.
  * @retval -1 Erro ao escrever no arquivo.
+ * @retval -2 Ponteiro nulo.
  */
 int salvar_reservas(const char *arquivo);
 
@@ -47,12 +58,16 @@ int salvar_reservas(const char *arquivo);
  * @param isbn Identificador único do livro.
  * @param matricula Identificador único do aluno.
  * 
- * @return int
+ * @note Um aluno não pode reservar o mesmo livro mais de uma vez simultaneamente.
+ * @note A reserva só é permitida se o livro estiver indisponível.
+ * 
+ * @return int 
  * @retval 1 Reserva realizada com sucesso.
  * @retval 0 Livro disponível para empréstimo (não precisa reservar).
  * @retval -1 Livro não encontrado.
  * @retval -2 Aluno não encontrado.
  * @retval -3 Aluno já reservou esse livro.
+ * @retval -4 Falha de alocação de memória.
  */
 int criar_reserva(long isbn, int matricula);
 
@@ -63,6 +78,8 @@ int criar_reserva(long isbn, int matricula);
  * @param isbn Identificador único do livro.
  * @param matricula Identificador único do aluno.
  *
+ * @post Se retornou 1, a reserva foi removida da fila e a memória liberada.
+ * 
  * @return int
  * @retval 1 Reserva cancelada com sucesso.
  * @retval 0 Reserva não encontrada.
@@ -77,6 +94,8 @@ int cancelar_reserva(long isbn, int matricula);
  * 
  * @param isbn Identificador único do livro.
  * 
+ * @note Imprime os resultados via printf respeitando a ordem de chegada na fila.
+ * 
  * @return int
  * @retval 1 Listagem realizada com sucesso.
  * @retval 0 Nenhuma reserva encontrada.
@@ -89,6 +108,8 @@ int listar_reservas_livro(long isbn);
  * @brief Lista todas as reservas de um aluno.
  * 
  * @param matricula Identificador único do aluno.
+ * 
+ * @note Imprime os resultados via printf.
  * 
  * @return int
  * @retval 1 Listagem realizada com sucesso.
@@ -108,8 +129,18 @@ int listar_reservas_aluno(int matricula);
  * @retval 1 Próxima reserva encontrada (matrícula preenchida).
  * @retval 0 Não há reservas.
  * @retval -1 Livro não encontrado.
+ * @retval -2 Ponteiro inválido (matricula == NULL).
  */
 int proxima_reserva(long isbn, int *matricula);
+
+
+/**
+ * @brief Libera a memória alocada para a lista de reservas.
+ * 
+ * @return int
+ * @retval 1 Memória liberada com sucesso.
+ */
+int liberar_reservas(void);
 
 
 
