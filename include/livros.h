@@ -17,10 +17,14 @@ typedef struct livro Livro;
  * 
  * @param arquivo Caminho do arquivo de dados dos livros.
  * 
+ * @pre O ponteiro 'arquivo' não pode ser nulo (NULL).
+ * 
  * @return int
  * @retval 1 Dados carregados com sucesso.
  * @retval 0 Arquivo não existe ou está vazio (primeira inicialização).
- * @retval -1 Erro ao ler arquivo.
+ * @retval -1 Erro de leitura física no disco.
+ * @retval -2 Ponteiro nulo.
+ * @retval -3 Falha de alocação de memória.
  */
 int carregar_livros(const char *arquivo);
 
@@ -30,9 +34,13 @@ int carregar_livros(const char *arquivo);
  * 
  * @param arquivo Caminho do arquivo de dados dos livros.
  * 
+ * @pre O ponteiro 'arquivo' não pode ser nulo (NULL).
+ * 
  * @return int
  * @retval 1 Dados salvos com sucesso.
- * @retval -1 Erro ao escrever no arquivo.
+ * @retval -1 Erro ao criar ou abrir o arquivo no disco.
+ * @retval -2 Ponteiro nulo.
+ * @retval -3 Erro de escrita no disco.
  */
 int salvar_livros(const char *arquivo);
 
@@ -46,10 +54,16 @@ int salvar_livros(const char *arquivo);
  * @param ano Ano de lançamento do livro.
  * @param quantidade Quantidade de exemplares do livro no acervo.
  * 
+ * @pre Os ponteiros 'titulo' e 'autor' não podem ser nulos (NULL).
+ * 
+ * @note Não é permitido cadastrar dois livros com o mesmo ISBN.
+ * 
  * @return int
  * @retval 1 Cadastro realizado com sucesso.
  * @retval 0 Livro já cadastrado.
  * @retval -1 Quantidade inválida (<= 0).
+ * @retval -2 Falha de alocação de memória.
+ * @retval -3 Ponteiros inválidos (titulo ou autor NULL).
  */
 int cadastrar_livro(long isbn, char *titulo, char *autor, int ano, int quantidade);
 
@@ -72,9 +86,12 @@ int buscar_livro(long isbn);
  * @param isbn Identificador único do livro.
  * @param titulo Vetor que receberá título do livro.
  *
+ * @pre O ponteiro 'titulo' não pode ser nulo (NULL).
+ *
  * @return int
  * @retval 1 Título obtido com sucesso.
  * @retval 0 Livro não encontrado.
+ * @retval -1 Ponteiro inválido.
  */
 int obter_titulo_livro(long isbn, char* titulo);
 
@@ -88,7 +105,7 @@ int obter_titulo_livro(long isbn, char* titulo);
  * @return int
  * @retval 1 Alteração realizada com sucesso.
  * @retval 0 Livro não encontrado.
- * @retval -1 Quantidade inválida (menor do que exemplares emprestados).
+ * @retval -1 Quantidade inválida (<= 0 ou menor do que exemplares emprestados).
  */
 int alterar_quantidade(long isbn, int nova_quantidade);
 
@@ -115,8 +132,8 @@ int verificar_disponibilidade(long isbn);
  *
  * @return int
  * @retval 1 Redução realizada com sucesso.
- * @retval 0 Livro não encontrado. 
- * @retval -1 Quantidade de exemplares já é 0.
+ * @retval 0 Livro não encontrado.
+ * @retval -1 Nenhum exemplar disponível para empréstimo.
  */
 int reduzir_disponivel(long isbn);
 
@@ -130,7 +147,7 @@ int reduzir_disponivel(long isbn);
  * @return int
  * @retval 1 Aumento realizado com sucesso.
  * @retval 0 Livro não encontrado.
- * @retval -1 Quantidade de exemplares já é a quantidade total de exemplares.
+ * @retval -1 Todos os exemplares já estão disponíveis.
  */
 int aumentar_disponivel(long isbn);
 
@@ -138,11 +155,13 @@ int aumentar_disponivel(long isbn);
 /**
  * @brief Lista todos os livros cadastrados.
  * 
+ * @note Imprime os resultados via printf.
+ * 
  * @return int
  * @retval 1 Listagem realizada com sucesso.
  * @retval 0 Nenhum livro cadastrado.
  */
-int listar_livros(); 
+int listar_livros();
 
 
 /**
@@ -153,8 +172,18 @@ int listar_livros();
  * @return int
  * @retval 1 Livro excluído com sucesso.
  * @retval 0 Livro não encontrado.
+ * @retval -2 Livro possui empréstimos ativos.
  */
 int excluir_livro(long isbn);
+
+
+/**
+ * @brief Libera toda a memória alocada para os livros.
+ * 
+ * @return int
+ * @retval 1 Memória liberada com sucesso.
+ */
+int liberar_livros(void);
 
 
 #endif
