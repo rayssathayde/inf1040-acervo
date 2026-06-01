@@ -16,15 +16,247 @@ void salvar_um_dado(const char* nome,const char* arq, int(*func)(const char*));
 void exibir_opcoes();
 
 int main(void){
-    int input;
+    int input, output;
     iniciar_dados();
     exibir_opcoes();
+    Printf("Opcao:");
     scanf("%d", &input);
     while (input > 0){
+        if (input == 1){
+            exibir_opcoes();
+        }
+        else if (input == 2){
+            int matricula;
+            char nome[100];
+            char curso[100];
+            printf("Matricula:");
+            scanf("%d", &matricula);
+            getchar();
+            printf("Nome:");
+            fgets(nome, 100, stdin);
+            printf("Curso:");
+            fgets(curso, 100, stdin);
+            output = cadastrar_aluno(matricula, nome, curso);
+            if (output == 1)
+                printf("Cadastro com sucesso.\n");
+            else if (output == 0)
+                printf("Aluno ja esta no sistema.\n");
+            else
+                printf("Matricula invalida.\n");
+        }
+        else if (input == 3){
+            long isbn; 
+            char titulo[100], autor[100]; 
+            int ano, quantidade;
+            printf("ISBN: "); 
+            scanf("%ld", &isbn); 
+            getchar();
+            printf("Titulo: "); 
+            fgets(titulo, 100, stdin);
+            printf("Autor: "); 
+            fgets(autor, 100, stdin);
+            printf("Ano: "); 
+            scanf("%d", &ano);
+            printf("Quantidade: "); 
+            scanf("%d", &quantidade);
+            output = cadastrar_livro(isbn, titulo, autor, ano, quantidade);
+            if (output == 1)
+                printf("Cadastro com sucesso.\n");
+            else if (output == 0)
+                printf("Livro ja esta no sistema.\n");
+            else
+                printf("Quantidade de livros invalida. A quantidade deve ser maior que zero.\n");
+        }
+        else if (input == 4){
+            int matricula;
+            long isbn;
+            printf("Matricula:");
+            scanf("%d", &matricula);
+            printf("ISBN:");
+            scanf("%ld", &isbn);
+            output = emprestar_livro(isbn, matricula);
+            if (output == 0){
+                printf("Livro esgotado. E possivel reservar o livro digitando 6.\n");
+            }
+            else if(output == -1)
+                printf("Aluno nao encontrado.\n");
+            else if(output == -2)
+                printf("Livro nao encontrado.\n");
+            else if(output == -3)
+                printf("Aluno ja possui esse livro emprestado.\n");
+            else
+                printf("Emprestimo registrado com sucesso.\n");
+        }
+        else if (input == 5){
+            int matricula;
+            long isbn;
+            printf("Matricula:");
+            scanf("%d", &matricula);
+            printf("ISBN:");
+            scanf("%ld", &isbn);
+            output = devolver_livro(isbn, matricula);
+            if (output == 1){
+                printf("Devolucao do emprestimo registrada com sucesso.\n");
+                output = proxima_reserva(isbn, &matricula);
+                if (output == 1){
+                    char nome[100];
+                    obter_nome_aluno(matricula, nome);
+                    printf("Proximo na fila:%s\n", nome);
+                }
+                else if (output == 0)
+                    printf("Nao ha reservas para esse livro.\n");
+                else
+                    printf("Livro nao encontrado\n");
+            }
+            else if (output == 0)
+                printf("Emprestimo nao encontrado.\n");
+            else if (output == -1)
+                printf("Livro nao encontrado.\n");
+            else 
+                printf("Aluno nao encontrado.\n");
+            
+        }
+        else if (input == 6){
+            int matricula;
+            long isbn;
+            printf("Matricula:");
+            scanf("%d", &matricula);
+            printf("ISBN:");
+            scanf("%ld", &isbn);
+            if(verificar_emprestimo(isbn, matricula) == 1){
+                output = cirar_reserva(isbn, matricula);
+                if (output == 1)
+                    printf("Reserva realizada com sucesso\n");
+                else if (output == 0)
+                    printf("Livro disponivel para emprestimo. Caso deseje fazer o emprestimo, digite 4.\n");
+                else if (output == -1)
+                    printf("Livro nao encontrado.\n");
+                else if (output == -2)
+                    printf("Aluno nao encontrado.\n");
+                else
+                    printf("Aluno ja reservou esse livro.\n");
+            }
+            else
+                printf("Aluno ja possui esse livro emprestado.\n");
+        }
+        else if (input == 7){
+            int matricula;
+            long isbn;
+            printf("Matricula:");
+            scanf("%d", &matricula);
+            printf("ISBN:");
+            scanf("%ld", &isbn);
+            output = cancelar_reserva(isbn, matricula);
+            if (output == 1)
+                printf("reserva cancelada com sucesso\n");
+            else if (output == 0)
+                printf("Reserva nao encontrada\n");
+            else if (output == -1)
+                printf("Livro nao encontrado.\n");
+            else
+                printf("Aluno nao encontrado\n");              
+        }
+        else if (input == 8){
+            if (listar_alunos() == 0)
+                printf("Nenhum aluno cadastrado.\n");
+        }
+        else if (input == 9){
+            if (listar_livros()== 0)
+                printf("Nenhum livro cadastrado.\n");
+        }
+        else if (input == 10){
+            int matricula;
+            printf("Matricula:");
+            scanf("%d", &matricula);
+            output = listar_emprestimos_aluno(matricula);
+            if (output == 0)
+                printf("Aluno nao possui emprestimos\n");
+            else if (output == -1)
+                printf("Aluno nao encontrado.\n");
+        }
+        else if (input == 11){
+            long isbn;
+            printf("ISBN:");
+            scanf("%ld", &isbn);
+            output = listar_emprestimos_livro(isbn);
+            if (output == 0)
+                printf("Livro nao possui emprestimos\n");
+            else if (output == 0)
+                printf("Livro nao encontrado\n");
+        }
+        else if (input == 12){
+            int matricula;
+            printf("Matricula:");
+            scanf("%d", &matricula);
+            output = listar_reservas_aluno(matricula);
+            if (output == 0)
+                printf("Aluno nao possui reservas.\n");
+            else if (output == -1)
+                printf("Aluno nao encontrado.\n");
+        }
+        else if (input == 13){
+            long isbn;
+            printf("ISBN:");
+            scanf("%ld", &isbn);
+            output = listar_reservas_livro(isbn);
+            if (output == 0)
+                printf("Livro nao possui reservas\n");
+            else if (output == 0)
+                printf("Livro nao encontrado\n");
+
+        }
+        else if (input == 14){
+            int matricula;
+            printf("Matricula:");
+            scanf("%d", &matricula);
+            output == aluno_possui_emprestimo(matricula);
+            if (output == 1)
+                printf("Aluno nao pode ser excluido por ainda possuir livros emprestados\n");
+            else if (output == -1)
+                printf("Aluno nao encontrado\n");
+            else{
+                excluir_aluno(matricula);
+                printf("Aluno excluido com sucesso\n");
+            }
+        }
+        else if (input == 15){
+            long isbn;
+            printf("Matricula:");
+            scanf("%ld", & isbn);
+            output == livro_esta_emprestado(isbn);
+            if (output == 1)
+                printf("Livro nao pode ser excluido por ainda estar emprestado para aluno(a)s.\n");
+            else if (output == -1)
+                printf("Livro nao encontrado.\n");
+            else{
+                excluir_livro(isbn);
+                printf("Livro excluido com sucesso.\n");
+            }
+        }
+        else if (input == 16){
+            long isbn;
+            int quantidade;
+            printf("ISBN");
+            scanf("%ld", &isbn);
+            printf("Insira a nova quantidade total desse livro:");
+            scanf("%d", &quantidade);
+            output == alterar_quantidade(isbn, quantidade);
+            if (output == 1)
+                printf("Quantidade alterada com sucesso.\n");
+            else if (output == 0)
+                printf("Livro nao encontrado.\n");
+            else 
+                printf("Quantidade total menor que a quantidade de livros ja emprestados.\n");
+        }
+        else {
+            printf("Input invalido, insira um valor valido.\n");
+        }
+        printf("Caso precise de ajuda, digite 1 para visualisar todas as opções\n"
+        "Opcao:");
         scanf("%d", &input);
     }
     salvar_dados();
-    return;
+    return 0;
 }
 
 void carregar_dados(const char* nome,const char* arq, int(*func)(const char*)){
@@ -34,7 +266,7 @@ void carregar_dados(const char* nome,const char* arq, int(*func)(const char*)){
         printf("Dados de %s carregados com sucesso.\n", nome);
     else{
         if (retorno == 0)
-            printf("Dados de %s não encontrados, inicializando sistema vazio.\n", nome);
+            printf("Dados de %s nao encontrados, inicializando sistema vazio.\n", nome);
         else
             printf("Erro ao carregar os dados de %s.\n", nome);
     }
@@ -47,14 +279,14 @@ void iniciar_dados(){
     carregar_dados("reservas", "reservas.txt", carregar_reservas);
 }
 
-void salvar_todos_dados(){
-    salvar_dado("alunos", "alunos.txt", carregar_alunos);
-    salvar_dado("livros", "livros.txt", carregar_livros);
-    salvar_dado("emprestimos", "emprestimos.txt", carregar_emprestimos);
-    salvar_dado("reservas", "reservas.txt", carregar_reservas);
+void salvar_dados(){
+    salvar_um_dado("alunos", "alunos.txt", salvar_alunos);
+    salvar_um_dado("livros", "livros.txt", salvar_livros);
+    salvar_um_dado("emprestimos", "emprestimos.txt", salvar_emprestimos);
+    salvar_um_dado("reservas", "reservas.txt", salvar_reservas);
 }
 
-void salvar_dado(const char* nome,const char* arq, int(*func)(const char*)){
+void salvar_um_dado(const char* nome,const char* arq, int(*func)(const char*)){
     int retorno;
     retorno = func(arq);
     if (retorno == 1)
@@ -64,27 +296,22 @@ void salvar_dado(const char* nome,const char* arq, int(*func)(const char*)){
 }
 
 void exibir_opcoes(){
-    printf("Seja bem vindo ao sistema Arcevo.\n"
-        "Digite 1 para cadastrar um aluno no sistema\n"
-        "Digite 2 para procurar pelo nome de um aluno no sistema usando sua matricula\n"
-        "Digite 3 para visualizar todos os alunos no sistema\n"
-        "Digite 4 para excluir um aluno do sistema\n\n"
-        "Digite 5 para cadastrar um livro no sistema\n"
-        "Digite 6 para encontrar o titulo de um livro no sistema com o seu ISBN\n"
-        "Digite 7 para visualizar todos os livros no sistema\n"
-        "Digite 8 para alterar a quantidade total de exemplares de um livro\n"
-        "Digite 9 para verificar se um ha um exemplar de um livro disponivel para empréstimo\n"
-        "Digite 10 para excluir um livro do sistema.\n\n"
-        "Digite 11 para registrar o emprestimo de um livro para um aluno\n"
-        "Digite 12 para registrar a devolucao de um livro por um aluno\n"
-        "Digite 13 para visualizar todos os emprestimos atuais de um livro\n"
-        "Digite 14 para visualizar todos os emprestimos atuais de um aluno\n"
-        "Digite 15 para verificar se um usuario tem empréstimos ativos\n"
-        "Digite 16 para verificar se ha exemplares de um livro emprestados\n\n"
-        "Digite 17 para registar a reserva de um livro para um aluno\n"
-        "Dgite 18 para cancelar a reserva de um livro por um aluno\n"
-        "Digite 19 para visualizar a fila de reserva de um livro\n"
-        "Digite 20 para visualizar todos os livros reservados por um aluno\n"
-        "Digite 21 para verificar o próximo na fila de reserva de um livro.\n\n"
-        "Caso queira encerrar o sistema, digite 0\n");
+    printf("===== Sistema Biblioteca ======\n"
+    "1 - Exibir todas as opções\n"
+    "2 - Cadastrar aluno\n"
+    "3 - Cadastrar livro\n"
+    "4 - Emprestar livro\n"
+    "5 - Devolver livro\n"
+    "6 - Criar reserva\n"
+    "7 - Cancelar reserva\n"
+    "8 - Listar alunos\n"
+    "9 - Listar livros\n"
+    "10 - Listar emprestimos de um aluno\n"
+    "11 - Listar emprestimos de um livro\n"
+    "12 - listar reservas de um aluno\n"
+    "13 - Listar reservas de um livro\n"
+    "14 - Excluir aluno\n"
+    "15 - Excluir livro\n"
+    "16 - Alterar quantidade livro\n"
+    "0 - Sair\n");
 }
