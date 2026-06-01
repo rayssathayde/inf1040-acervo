@@ -24,10 +24,14 @@ typedef struct emprestimo Emprestimo;
  * 
  * @param arquivo Caminho do arquivo de dados dos empréstimos.
  * 
+ * @pre O ponteiro 'arquivo' não pode ser nulo (NULL).
+ * 
  * @return int
  * @retval 1 Dados carregados com sucesso.
  * @retval 0 Arquivo não existe ou está vazio (primeira inicialização).
- * @retval -1 Erro ao ler arquivo.
+ * @retval -1 Erro de leitura física no disco.
+ * @retval -2 Ponteiro nulo.
+ * @retval -3 Falha de alocação de memória.
  */
 int carregar_emprestimos(const char *arquivo);
 
@@ -37,9 +41,13 @@ int carregar_emprestimos(const char *arquivo);
  * 
  * @param arquivo Caminho do arquivo de dados dos empréstimos.
  * 
+ * @pre O ponteiro 'arquivo' não pode ser nulo (NULL).
+ * 
  * @return int
  * @retval 1 Dados salvos com sucesso.
- * @retval -1 Erro ao escrever no arquivo.
+ * @retval -1 Erro ao criar ou abrir o arquivo no disco.
+ * @retval -2 Ponteiro nulo.
+ * @retval -3 Erro de escrita no disco.
  */
 int salvar_emprestimos(const char *arquivo);
 
@@ -60,6 +68,7 @@ int salvar_emprestimos(const char *arquivo);
  * @retval -1 Livro não encontrado.
  * @retval -2 Aluno não encontrado.
  * @retval -3 Aluno já está com esse livro.
+ * @retval -4 Erro de alocação, falta memória.
  */
 int emprestar_livro(long isbn, int matricula);
 
@@ -135,6 +144,30 @@ int aluno_possui_emprestimo(int matricula);
  * @retval -1 Livro não encontrado.
  */
 int livro_esta_emprestado(long isbn); 
+
+
+/**
+ * @brief Verifica se um aluno está com um livro específico emprestado.
+ * 
+ * @param isbn Identificador único do livro.
+ * @param matricula Identificador único do aluno.
+ *
+ * @return int
+ * @retval 1 Aluno está com esse livro emprestado.
+ * @retval 0 Empréstimo não encontrado.
+ * @retval -1 Livro não encontrado.
+ * @retval -2 Aluno não encontrado.
+ */
+int verificar_emprestimo(long isbn, int matricula);
+
+
+/**
+ * @brief Libera a memória alocada para a lista de empréstimos.
+ * 
+ * @return int
+ * @retval 1 Memória liberada com sucesso.
+ */
+int liberar_emprestimos(void);
 
 
 #endif
