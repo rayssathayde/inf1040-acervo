@@ -15,11 +15,15 @@ void salvar_um_dado(const char* nome,const char* arq, int(*func)(const char*));
 
 void exibir_opcoes();
 
+void limpar_modulos();
+
+void limpar_um_modulo(const char* nome, int(*func)());
+
 int main(void){
     int input, output;
     iniciar_dados();
     exibir_opcoes();
-    Printf("Opcao:");
+    printf("Opcao:");
     scanf("%d", &input);
     while (input > 0){
         if (input == 1){
@@ -79,9 +83,9 @@ int main(void){
                 printf("Livro esgotado. E possivel reservar o livro digitando 6.\n");
             }
             else if(output == -1)
-                printf("Aluno nao encontrado.\n");
-            else if(output == -2)
                 printf("Livro nao encontrado.\n");
+            else if(output == -2)
+                printf("Aluno nao encontrado.\n");
             else if(output == -3)
                 printf("Aluno ja possui esse livro emprestado.\n");
             else
@@ -123,8 +127,9 @@ int main(void){
             scanf("%d", &matricula);
             printf("ISBN:");
             scanf("%ld", &isbn);
-            if(verificar_emprestimo(isbn, matricula) == 1){
-                output = cirar_reserva(isbn, matricula);
+            output = verificar_emprestimo(isbn, matricula);
+            if(output == 0){
+                output = criar_reserva(isbn, matricula);
                 if (output == 1)
                     printf("Reserva realizada com sucesso\n");
                 else if (output == 0)
@@ -136,8 +141,12 @@ int main(void){
                 else
                     printf("Aluno ja reservou esse livro.\n");
             }
-            else
+            else if (output == 1)
                 printf("Aluno ja possui esse livro emprestado.\n");
+            else if (output == -1)
+                printf("Livro nao encontrado.\n");
+            else
+                printf("Aluno nao encontrado.\n");
         }
         else if (input == 7){
             int matricula;
@@ -209,7 +218,7 @@ int main(void){
             int matricula;
             printf("Matricula:");
             scanf("%d", &matricula);
-            output == aluno_possui_emprestimo(matricula);
+            output = aluno_possui_emprestimo(matricula);
             if (output == 1)
                 printf("Aluno nao pode ser excluido por ainda possuir livros emprestados\n");
             else if (output == -1)
@@ -221,17 +230,16 @@ int main(void){
         }
         else if (input == 15){
             long isbn;
-            printf("Matricula:");
+            printf("ISBN:");
             scanf("%ld", & isbn);
-            output == livro_esta_emprestado(isbn);
+            output = excluir_livro(isbn);
             if (output == 1)
-                printf("Livro nao pode ser excluido por ainda estar emprestado para aluno(a)s.\n");
-            else if (output == -1)
-                printf("Livro nao encontrado.\n");
-            else{
-                excluir_livro(isbn);
                 printf("Livro excluido com sucesso.\n");
-            }
+            else if (output == 0)
+                printf("Livro nao encontrado.\n");
+            else
+                printf("Livro ainda possui exemplares emprestados.\n");
+            
         }
         else if (input == 16){
             long isbn;
@@ -256,6 +264,7 @@ int main(void){
         scanf("%d", &input);
     }
     salvar_dados();
+    limpar_modulos();
     return 0;
 }
 
@@ -273,17 +282,17 @@ void carregar_dados(const char* nome,const char* arq, int(*func)(const char*)){
 }
 
 void iniciar_dados(){
-    carregar_dados("alunos", "alunos.txt", carregar_alunos);
-    carregar_dados("livros", "livros.txt", carregar_livros);
-    carregar_dados("emprestimos", "emprestimos.txt", carregar_emprestimos);
-    carregar_dados("reservas", "reservas.txt", carregar_reservas);
+    carregar_dados("alunos", "data/alunos.txt", carregar_alunos);
+    carregar_dados("livros", "data/livros.txt", carregar_livros);
+    carregar_dados("emprestimos", "data/emprestimos.txt", carregar_emprestimos);
+    carregar_dados("reservas", "data/reservas.txt", carregar_reservas);
 }
 
 void salvar_dados(){
-    salvar_um_dado("alunos", "alunos.txt", salvar_alunos);
-    salvar_um_dado("livros", "livros.txt", salvar_livros);
-    salvar_um_dado("emprestimos", "emprestimos.txt", salvar_emprestimos);
-    salvar_um_dado("reservas", "reservas.txt", salvar_reservas);
+    salvar_um_dado("alunos", "data/alunos.txt", salvar_alunos);
+    salvar_um_dado("livros", "data/livros.txt", salvar_livros);
+    salvar_um_dado("emprestimos", "data/emprestimos.txt", salvar_emprestimos);
+    salvar_um_dado("reservas", "data/reservas.txt", salvar_reservas);
 }
 
 void salvar_um_dado(const char* nome,const char* arq, int(*func)(const char*)){
@@ -293,6 +302,22 @@ void salvar_um_dado(const char* nome,const char* arq, int(*func)(const char*)){
         printf("Dados de %s salvos com sucesso.\n", nome);
     else
         printf("Erro ao salvar os dados de %s.\n", nome);
+}
+
+void limpar_modulos(){
+    limpar_um_modulo("alunos", liberar_alunos);
+    limpar_um_modulo("livros", liberar_livros);
+    limpar_um_modulo("emprestimos", liberar_emprestimos);
+    limpar_um_modulo("reservas", liberar_reservas);
+}
+
+void limpar_um_modulo(const char* nome, int(*func)()){
+    int retorno; 
+    retorno = func();
+    if (retorno ==1)
+        printf("Dados de %s liberados com sucesso.\n", nome);
+    else
+        printf("Erro ao liberar dados de %s.\n", nome);
 }
 
 void exibir_opcoes(){
