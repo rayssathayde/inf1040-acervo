@@ -37,7 +37,7 @@ int carregar_alunos(const char *arquivo) {
         return 0; // arquivo corrompido ou vazio
     }
 
-    fgetc(fp); // 🔥 consome o '\n' após o contador
+    fgetc(fp); // consome o '\n' após o contador
     
     NoAluno *atual = NULL;
     for (int i = 0; i < qtd_alunos; i++) {
@@ -55,7 +55,7 @@ int carregar_alunos(const char *arquivo) {
             return -1; // erro de leitura física
         }
 
-        fgetc(fp); // 🔥 consome o '\n' antes do nome
+        fgetc(fp); // consome o '\n' antes do nome
 
         if (fgets(novo->dados.nome, TAM_STRING, fp) == NULL) {
             free(novo); 
@@ -108,6 +108,9 @@ int salvar_alunos(const char *arquivo) {
 
     atual = inicio_alunos;
     while (atual != NULL) {
+        atual->dados.nome[strcspn(atual->dados.nome, "\n")] = '\0';
+        atual->dados.curso[strcspn(atual->dados.curso, "\n")] = '\0';
+        
         if (fprintf(fp, "%d\n%s\n%s\n",
                     atual->dados.matricula,
                     atual->dados.nome,
