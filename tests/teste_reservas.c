@@ -37,6 +37,42 @@ void testar_cancelar_reserva() {
 }
 
 
+void testar_cancelar_reservas_aluno() {
+    liberar_reservas();
+
+    // cria duas reservas para o mesmo aluno
+    criar_reserva(10342, 202410001);
+    criar_reserva(10343, 202410001);
+    int caso_1 = cancelar_reservas_aluno(202410001);
+    checar(caso_1 == 1, "cancelar_reservas_aluno: removeu reservas");
+    int matricula;
+    int caso_2 = proxima_reserva(10342, &matricula);
+    checar(caso_2 == 0, "cancelar_reservas_aluno: reservas removidas da lista");
+    int caso_3 = cancelar_reservas_aluno(202410001);
+    checar(caso_3 == 0, "cancelar_reservas_aluno: nenhuma reserva restante");
+    int caso_4 = cancelar_reservas_aluno(202820001);
+    checar(caso_4 == -1, "cancelar_reservas_aluno: aluno nao encontrado");
+}
+
+
+void testar_cancelar_reservas_livro() {
+    liberar_reservas();
+
+    // cria reservas para o mesmo livro com alunos diferentes
+    criar_reserva(10342, 202410001);
+    criar_reserva(10342, 202410002);
+    int caso_1 = cancelar_reservas_livro(10342);
+    checar(caso_1 == 1, "cancelar_reservas_livro: removeu reservas");
+    int matricula;
+    int caso_2 = proxima_reserva(10342, &matricula);
+    checar(caso_2 == 0, "cancelar_reservas_livro: reservas removidas da lista");
+    int caso_3 = cancelar_reservas_livro(10342);
+    checar(caso_3 == 0, "cancelar_reservas_livro: nenhuma reserva restante");
+    int caso_4 = cancelar_reservas_livro(78304);
+    checar(caso_4 == -1, "cancelar_reservas_livro: livro nao encontrado");
+}
+
+
 void testar_listar_reservas_livro() {
     liberar_reservas();
     criar_reserva(10342, 202410001);
@@ -105,6 +141,12 @@ int main() {
 
     printf("\n--- TESTES DE: cancelar_reserva ---\n");
     testar_cancelar_reserva();
+
+    printf("\n--- TESTES DE: cancelar_reservas_aluno ---\n");
+    testar_cancelar_reservas_aluno();
+
+    printf("\n--- TESTES DE: cancelar_reservas_livro ---\n");
+    testar_cancelar_reservas_livro();
 
     printf("\n--- TESTES DE: listar_reservas_livro ---\n");
     testar_listar_reservas_livro();

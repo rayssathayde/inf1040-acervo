@@ -1,1 +1,2 @@
+123456;Calculo;Stewart;1990;3;3
 9781394365562;Coding For Dummies;Nikihil Abraham;2016;3;3

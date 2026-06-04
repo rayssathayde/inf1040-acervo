@@ -134,6 +134,71 @@ int cancelar_reserva(long isbn, int matricula) {
     return 0; // reserva não encontrada
 }
 
+
+int cancelar_reservas_aluno(int matricula) {
+    if (buscar_aluno(matricula) != 1) return -1;
+
+    NoListaReserva *atual = inicio_fila;
+    NoListaReserva *anterior = NULL;
+
+    int removeu = 0;
+
+    while (atual != NULL) {
+        if (atual->dados.matricula == matricula) {
+            NoListaReserva *remover = atual;
+
+            if (anterior == NULL) {
+                inicio_fila = atual->proximo;
+                atual = inicio_fila;
+            } else {
+                anterior->proximo = atual->proximo;
+                atual = atual->proximo;
+            }
+
+            free(remover);
+            removeu = 1;
+        } else {
+            anterior = atual;
+            atual = atual->proximo;
+        }
+    }
+
+    return removeu ? 1 : 0;
+}
+
+
+int cancelar_reservas_livro(long isbn) {
+    if (buscar_livro(isbn) == 0) return -1; // livro não encontrado
+
+    NoListaReserva *atual = inicio_fila;
+    NoListaReserva *anterior = NULL;
+
+    int removeu = 0;
+
+    while (atual != NULL) {
+        if (atual->dados.isbn == isbn) {
+            NoListaReserva *remover = atual;
+
+            if (anterior == NULL) {
+                inicio_fila = atual->proximo;
+                atual = inicio_fila;
+            } else {
+                anterior->proximo = atual->proximo;
+                atual = atual->proximo;
+            }
+
+            free(remover);
+            removeu = 1;
+        } else {
+            anterior = atual;
+            atual = atual->proximo;
+        }
+    }
+
+    return removeu ? 1 : 0;
+}
+
+
 int listar_reservas_livro(long isbn) {
     if (buscar_livro(isbn) == 0) return -1;  // livro não encontrado
     

@@ -90,6 +90,35 @@ int cancelar_reserva(long isbn, int matricula);
 
 
 /**
+ * @brief Cancela todas as reservas de um aluno.
+ *
+ * @param matricula Identificador único do aluno.
+ * @post Todas as reservas do aluno são removidas da fila e a memória liberada.
+ *
+ * @return int
+ * @retval 1 Pelo menos uma reserva foi removida.
+ * @retval 0 Nenhuma reserva encontrada para o aluno.
+ * @retval -1 Aluno não encontrado.
+ */
+int cancelar_reservas_aluno(int matricula);
+
+
+/**
+ * @brief Cancela todas as reservas de um livro.
+ *
+ * @param isbn Identificador único do livro.
+ *
+ * @post Todas as reservas do livro são removidas da fila e a memória liberada.
+ *
+ * @return int
+ * @retval 1 Pelo menos uma reserva foi removida.
+ * @retval 0 Nenhuma reserva encontrada para o livro.
+ * @retval -1 Livro não encontrado.
+ */
+int cancelar_reservas_livro(long isbn);
+
+
+/**
  * @brief Lista todas as reservas do livro.
  * 
  * @param isbn Identificador único do livro.
