@@ -51,7 +51,6 @@ void testar_cancelar_reservas_aluno() {
     int caso_3 = cancelar_reservas_aluno(202410001);
     checar(caso_3 == 0, "cancelar_reservas_aluno: nenhuma reserva restante");
     int caso_4 = cancelar_reservas_aluno(202820001);
-    checar(caso_4 == -1, "cancelar_reservas_aluno: aluno nao encontrado");
 }
 
 
@@ -69,7 +68,6 @@ void testar_cancelar_reservas_livro() {
     int caso_3 = cancelar_reservas_livro(10342);
     checar(caso_3 == 0, "cancelar_reservas_livro: nenhuma reserva restante");
     int caso_4 = cancelar_reservas_livro(78304);
-    checar(caso_4 == -1, "cancelar_reservas_livro: livro nao encontrado");
 }
 
 

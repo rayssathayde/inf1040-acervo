@@ -1,7 +1,10 @@
-2
+3
 2410000
 Aline 
 Psicologia 
 2124567
 Joao Silva 
 Matematica
+2510000
+nome
+curso

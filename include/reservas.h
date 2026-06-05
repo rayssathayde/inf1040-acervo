@@ -92,7 +92,7 @@ int cancelar_reserva(long isbn, int matricula);
 /**
  * @brief Cancela todas as reservas de um aluno.
  *
- * @param matricula Identificador único do aluno.
+ * @param matricula Identificador único do aluno. Prerequisito que a matricula já tenha sido verificada manualmente por outra função.
  * @post Todas as reservas do aluno são removidas da fila e a memória liberada.
  *
  * @return int
@@ -105,7 +105,7 @@ int cancelar_reservas_aluno(int matricula);
 /**
  * @brief Cancela todas as reservas de um livro.
  *
- * @param isbn Identificador único do livro.
+ * @param isbn Identificador único do livro. Prerequisito que o isbn já tenha sido verificada manualmente por outra função.
  *
  * @post Todas as reservas do livro são removidas da fila e a memória liberada.
  *
