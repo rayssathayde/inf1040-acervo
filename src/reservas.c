@@ -136,7 +136,6 @@ int cancelar_reserva(long isbn, int matricula) {
 
 
 int cancelar_reservas_aluno(int matricula) {
-    if (buscar_aluno(matricula) != 1) return -1;
 
     NoListaReserva *atual = inicio_fila;
     NoListaReserva *anterior = NULL;
@@ -168,7 +167,6 @@ int cancelar_reservas_aluno(int matricula) {
 
 
 int cancelar_reservas_livro(long isbn) {
-    if (buscar_livro(isbn) == 0) return -1; // livro não encontrado
 
     NoListaReserva *atual = inicio_fila;
     NoListaReserva *anterior = NULL;

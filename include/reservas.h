@@ -98,7 +98,6 @@ int cancelar_reserva(long isbn, int matricula);
  * @return int
  * @retval 1 Pelo menos uma reserva foi removida.
  * @retval 0 Nenhuma reserva encontrada para o aluno.
- * @retval -1 Aluno não encontrado.
  */
 int cancelar_reservas_aluno(int matricula);
 
@@ -113,7 +112,6 @@ int cancelar_reservas_aluno(int matricula);
  * @return int
  * @retval 1 Pelo menos uma reserva foi removida.
  * @retval 0 Nenhuma reserva encontrada para o livro.
- * @retval -1 Livro não encontrado.
  */
 int cancelar_reservas_livro(long isbn);
 
