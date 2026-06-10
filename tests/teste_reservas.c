@@ -50,7 +50,6 @@ void testar_cancelar_reservas_aluno() {
     checar(caso_2 == 0, "cancelar_reservas_aluno: reservas removidas da lista");
     int caso_3 = cancelar_reservas_aluno(202410001);
     checar(caso_3 == 0, "cancelar_reservas_aluno: nenhuma reserva restante");
-    int caso_4 = cancelar_reservas_aluno(202820001);
 }
 
 
@@ -67,7 +66,6 @@ void testar_cancelar_reservas_livro() {
     checar(caso_2 == 0, "cancelar_reservas_livro: reservas removidas da lista");
     int caso_3 = cancelar_reservas_livro(10342);
     checar(caso_3 == 0, "cancelar_reservas_livro: nenhuma reserva restante");
-    int caso_4 = cancelar_reservas_livro(78304);
 }
 
 

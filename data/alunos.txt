@@ -1,10 +1,31 @@
-3
+10
 2410000
-Aline 
+Alexandra da Costa
 Psicologia 
-2124567
+2110000
 Joao Silva 
 Matematica
 2510000
-nome
-curso
+Beatriz Machado 
+Ciencias da Computacao
+2310000
+Bruno Machado de Oliveira
+Arquitetura
+2418888
+Maria Paula da Cruz
+Filosofia
+2517777
+Helena Moraes Carvalho
+Nutricao
+2616666
+Henrique Rocha dos Santos
+Direito
+2212222
+Matheus Rangel 
+Design 
+2313333
+Ana Luiza Meireles
+Engenharia da computacao
+2617890
+Jeronimo Teixeira Nunes
+Teologia
